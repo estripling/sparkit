@@ -1,0 +1,36 @@
+{
+    "name": "sparkit",
+    "build": {
+        "context": "..",
+        "dockerfile": "Dockerfile"
+    },
+    "features": {
+        // https://github.com/devcontainers/features/tree/main/src/common-utils
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": true,
+            "configureZshAsDefaultShell": true,
+            "installOhMyZsh": true,
+            "upgradePackages": true,
+            "username": "developer"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "files.insertFinalNewline": true,
+                "files.trimFinalNewlines": true,
+                "python.testing.pytestArgs": [
+                    "tests"
+                ],
+                "python.testing.unittestEnabled": false,
+                "python.testing.pytestEnabled": true
+            },
+            "extensions": [
+                "ms-python.python",
+                "streetsidesoftware.code-spell-checker"
+            ]
+        }
+    },
+    "postCreateCommand": "sed -i -e 's/plugins=(git)/plugins=()/g' /home/developer/.zshrc",
+    "remoteUser": "developer"
+}

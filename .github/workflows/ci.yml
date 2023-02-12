@@ -1,0 +1,49 @@
+name: ci status
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  integration:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check-out repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.8
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 1.3.2
+
+    - name: Install sparkit
+      run: poetry install
+
+    - name: Run isort
+      run: poetry run isort --check-only --line-length 88 --profile black ./
+
+    - name: Run Black
+      run: poetry run black --check --line-length 88 ./
+
+    - name: Run Flake8
+      run: poetry run flake8 --doctests --max-line-length 88 src/ tests/
+
+    - name: Run pytest
+      run: poetry run pytest --doctest-modules src/ --cov=src/ --cov-report=xml tests/
+
+    - name: Use Codecov to track coverage
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage.xml
+
+    - name: Build documentation
+      run: poetry run make html --directory docs/
