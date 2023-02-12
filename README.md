@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/estripling/sparkit/main/docs/source/_static/logo.png" width="180" alt="The sparkit logo.">
+<img src="https://raw.githubusercontent.com/estripling/sparkit/main/docs/source/_static/logo.png" width="480" alt="The sparkit logo.">
 </p>
 
 <p align="center">
