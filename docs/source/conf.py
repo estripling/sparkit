@@ -66,5 +66,5 @@ def setup(sphinx):
 #
 
 html_theme = "furo"
-# html_logo = "_static/logosmall.png"
-# html_static_path = ["_static"]
+html_logo = "_static/logosmall.png"
+html_static_path = ["_static"]

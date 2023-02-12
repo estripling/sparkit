@@ -1,4 +1,6 @@
-<h1 align="center">sparkit</h1>
+<p align="center">
+<img src="https://raw.githubusercontent.com/estripling/sparkit/main/docs/source/_static/logo.png" width="180" alt="The sparkit logo.">
+</p>
 
 <p align="center">
 <a href="https://pypi.org/project/sparkit"><img alt="pypi" src="https://img.shields.io/pypi/v/sparkit"></a>
