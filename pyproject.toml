@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sparkit"
-version = "0.0.0"
+version = "0.0.1"
 description = "A package for PySpark utility functions."
 authors = ["sparkit Developers"]
 license = "BSD 3-Clause"
