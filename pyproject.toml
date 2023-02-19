@@ -15,6 +15,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.8"
 pyspark = "~3"
+pandas = "^1.5.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
