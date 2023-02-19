@@ -20,7 +20,7 @@ A package for PySpark utility functions:
 
 ## Installation
 
-`sparkit` is available on [PyPI](https://pypi.org/project/sparkit/) for Python 3.8+:
+`sparkit` is available on [PyPI](https://pypi.org/project/sparkit/) for Python 3.8+ and Spark 3 (Java 11):
 
 ```console
 pip install sparkit
