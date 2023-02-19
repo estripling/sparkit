@@ -12,6 +12,12 @@
             "installOhMyZsh": true,
             "upgradePackages": true,
             "username": "developer"
+        },
+        // https://github.com/devcontainers-contrib/features/tree/main/src/spark-sdkman
+        "ghcr.io/devcontainers-contrib/features/spark-sdkman:2": {
+            "version": "3.0.0",
+            "jdkVersion": "11",
+            "jdkDistro": "open"
         }
     },
     "customizations": {
@@ -31,6 +37,15 @@
             ]
         }
     },
-    "postCreateCommand": "sed -i -e 's/plugins=(git)/plugins=()/g' /home/developer/.zshrc",
+    "portsAttributes": {
+        "4040": {
+            "label": "SparkUI",
+            "onAutoForward": "notify"
+        }
+    },
+    "forwardPorts": [
+        4040
+    ],
+    "postCreateCommand": "bash .devcontainer/postcreate.sh",
     "remoteUser": "developer"
 }
