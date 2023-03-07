@@ -263,14 +263,14 @@ dev = ["Sphinx (==4.3.2)", "black (==22.3.0)", "build (==0.8.0)", "flake8 (==4.0
 
 [[package]]
 name = "bumbag"
-version = "4.0.1"
+version = "4.1.0"
 description = "A package for Python utility functions."
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "bumbag-4.0.1-py3-none-any.whl", hash = "sha256:e9276d2e4d5c932f62b021473b052df0ce5097a97031f6f0bcbfd25c6838e6e0"},
-    {file = "bumbag-4.0.1.tar.gz", hash = "sha256:a4d12ff9a10dcfd8c6c5fe4959a0683a323293c7e13393d2c681a626b0f29271"},
+    {file = "bumbag-4.1.0-py3-none-any.whl", hash = "sha256:74f147eb4942ff7558a8a364952b4a53aeeafca06efb6b4c4945fd76efe2b2b1"},
+    {file = "bumbag-4.1.0.tar.gz", hash = "sha256:447c14dff61c1c4f4e864117b70b2ad4bb83663869061788da36255dcc229686"},
 ]
 
 [package.dependencies]
