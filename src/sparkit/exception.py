@@ -7,6 +7,31 @@ class SparkitError(Exception):
     pass
 
 
+class RowCountMismatchError(SparkitError):
+    """Exception raised for mismatching row counts.
+
+    Parameters
+    ----------
+    lft_row_count : int
+        Left row count.
+    rgt_row_count : int
+        Right row count.
+    """
+
+    def __init__(self, lft_row_count, rgt_row_count):
+        self.lft_row_count = lft_row_count
+        self.rgt_row_count = rgt_row_count
+        self.difference = lft_row_count - rgt_row_count
+        self.ratio = lft_row_count / rgt_row_count
+        self.message = (
+            f"{lft_row_count=:,}\n"
+            + f"{rgt_row_count=:,}\n"
+            + f"{lft_row_count - rgt_row_count=:,}\n"
+            + f"{lft_row_count / rgt_row_count=:g}"
+        )
+        super().__init__(self.message)
+
+
 class SchemaMismatchError(SparkitError):
     """Exception raised for mismatching schemas.
 
