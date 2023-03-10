@@ -37,10 +37,10 @@ class SchemaMismatchError(SparkitError):
 
     Parameters
     ----------
-        lft_schema : str
-            Left schema.
-        rgt_schema : str
-            Right schema.
+    lft_schema : str
+        Left schema.
+    rgt_schema : str
+        Right schema.
     """
 
     def __init__(self, lft_schema, rgt_schema):
