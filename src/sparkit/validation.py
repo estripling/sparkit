@@ -129,12 +129,12 @@ def is_row_count_equal(lft_df, rgt_df):
     >>> spark = SparkSession.builder.getOrCreate()
     >>> lft_df = spark.createDataFrame([Row(x=1, y=2), Row(x=3, y=4)])
     >>> rgt_df = spark.createDataFrame([Row(x=1, y=2), Row(x=3, y=4)])
-    >>> sparkit.is_schema_equal(lft_df, rgt_df)
+    >>> sparkit.is_row_count_equal(lft_df, rgt_df)
     True
 
     >>> lft_df = spark.createDataFrame([Row(x=1, y=2), Row(x=3, y=4)])
-    >>> rgt_df = spark.createDataFrame([Row(x=1), Row(x=3)])
-    >>> sparkit.is_schema_equal(lft_df, rgt_df)
+    >>> rgt_df = spark.createDataFrame([Row(x=1)])
+    >>> sparkit.is_row_count_equal(lft_df, rgt_df)
     False
     """
     try:
