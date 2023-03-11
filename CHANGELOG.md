@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.0 (2023-03-11)
+### Feature
+* Add dataframe validation functions ([#3](https://github.com/estripling/sparkit/issues/3)) ([`9ce8640`](https://github.com/estripling/sparkit/commit/9ce86404b366d69e11547fdbead63d19f5f28f25))
+
 ## v0.0.2 (2023-02-12)
 ### Fix
 * Move logos to right directory ([`362a889`](https://github.com/estripling/sparkit/commit/362a889dd4628a91339593a8d32fdc0ed96cac2a))
