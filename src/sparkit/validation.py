@@ -115,6 +115,10 @@ def check_row_count_equal(lft_df, rgt_df):
     sparkit.exception.RowCountMismatchError
         If row counts are not equal.
 
+    See Also
+    --------
+    check_dataframe_equal : Validate data frames.
+
     Examples
     --------
     >>> import sparkit
@@ -163,6 +167,10 @@ def check_row_equal(lft_df, rgt_df):
     ------
     sparkit.exception.RowMismatchError
         If rows are not equal.
+
+    See Also
+    --------
+    check_dataframe_equal : Validate data frames.
 
     Examples
     --------
@@ -219,6 +227,10 @@ def check_schema_equal(lft_df, rgt_df):
     ------
     sparkit.exception.SchemaMismatchError
         If schemas are not equal.
+
+    See Also
+    --------
+    check_dataframe_equal : Validate data frames.
 
     Examples
     --------
@@ -325,6 +337,10 @@ def is_row_count_equal(lft_df, rgt_df):
     bool
         ``True`` if row counts are equal else ``False``.
 
+    See Also
+    --------
+    is_dataframe_equal : Evaluate data frames.
+
     Examples
     --------
     >>> import sparkit
@@ -362,6 +378,10 @@ def is_row_equal(lft_df, rgt_df):
     bool
         ``True`` if rows are equal else ``False``.
 
+    See Also
+    --------
+    is_dataframe_equal : Evaluate data frames.
+
     Examples
     --------
     >>> import sparkit
@@ -398,6 +418,10 @@ def is_schema_equal(lft_df, rgt_df):
     -------
     bool
         ``True`` if schemas are equal else ``False``.
+
+    See Also
+    --------
+    is_dataframe_equal : Evaluate data frames.
 
     Examples
     --------
