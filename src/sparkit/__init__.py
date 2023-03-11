@@ -2,11 +2,11 @@ from importlib import metadata
 
 __version__ = metadata.version("sparkit")
 
-from .core import *
+from .transformation import *
 from .validation import *
 
 del (
     metadata,
-    core,
+    transformation,
     validation,
 )
