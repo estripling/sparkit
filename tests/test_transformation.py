@@ -30,8 +30,7 @@ def test_count_nulls(spark):
 
     actual = sparkit.count_nulls(df, subset=["x", "z"])
     excepted = spark.createDataFrame([Row(x=0, z=3)])
-
-    assert sparkit.is_dataframe_equal(actual, excepted)
+    assert_dataframe_equal(actual, excepted)
 
 
 def test_join(spark):
@@ -41,8 +40,7 @@ def test_join(spark):
 
     actual = sparkit.join(df1, df2, df3, on="id")
     excepted = df1.join(df2, "id").join(df3, "id")
-
-    assert sparkit.is_dataframe_equal(actual, excepted)
+    assert_dataframe_equal(actual, excepted)
 
 
 def test_union(spark):
@@ -52,5 +50,4 @@ def test_union(spark):
 
     actual = sparkit.union(df1, df2, df3)
     excepted = df1.unionByName(df2).unionByName(df3)
-
-    assert sparkit.is_dataframe_equal(actual, excepted)
+    assert_dataframe_equal(actual, excepted)
