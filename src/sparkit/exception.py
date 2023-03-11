@@ -32,6 +32,30 @@ class RowCountMismatchError(SparkitError):
         super().__init__(self.message)
 
 
+class RowMismatchError(SparkitError):
+    """Exception raised for mismatching rows.
+
+    Parameters
+    ----------
+    lft_rows_not_in_rgt : pyspark.sql.DataFrame
+        Rows in the left data frame but not in the right.
+    rgt_rows_not_in_lft : pyspark.sql.DataFrame
+        Rows in the right data frame but not in the left.
+    lft_count : int
+        Row count of `lft_rows_not_in_rgt`.
+    rgt_count : int
+        Row count of `rgt_rows_not_in_lft`.
+    """
+
+    def __init__(self, lft_rows_not_in_rgt, rgt_rows_not_in_lft, lft_count, rgt_count):
+        self.lft_rows_not_in_rgt = lft_rows_not_in_rgt
+        self.rgt_rows_not_in_lft = rgt_rows_not_in_lft
+        self.lft_count = lft_count
+        self.rgt_count = rgt_count
+        self.message = f"{lft_count=:,} {rgt_count=:,}"
+        super().__init__(self.message)
+
+
 class SchemaMismatchError(SparkitError):
     """Exception raised for mismatching schemas.
 
