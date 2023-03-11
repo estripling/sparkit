@@ -1,12 +1,56 @@
 import functools
 
 import bumbag
+import pyspark.sql.functions as F
+import pyspark.sql.types as T
 from pyspark.sql import DataFrame
 
 __all__ = (
+    "count_nulls",
     "join",
     "union",
 )
+
+
+def count_nulls(dataframe, subset=None):
+    """Count null values in data frame.
+
+    Parameters
+    ----------
+    dataframe : pyspark.sql.DataFrame
+        Input data frame to count null values.
+    subset : Iterable of str, default=None
+        Specify a column selection. If None, all columns are selected.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with null values.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame(
+    ...     [
+    ...         Row(x=1, y=2, z=None),
+    ...         Row(x=4, y=None, z=6),
+    ...         Row(x=10, y=None, z=None),
+    ...     ]
+    ... )
+    >>> sparkit.count_nulls(df).show()
+    +---+---+---+
+    |  x|  y|  z|
+    +---+---+---+
+    |  0|  2|  2|
+    +---+---+---+
+    <BLANKLINE>
+    """
+    columns = subset or dataframe.columns
+    return dataframe.agg(
+        *[F.sum(F.isnull(c).cast(T.LongType())).alias(c) for c in columns]
+    )
 
 
 def join(*dataframes, on, how="inner"):

@@ -3,6 +3,22 @@ from pyspark.sql import Row
 import sparkit
 
 
+def test_count_nulls(spark):
+    df = spark.createDataFrame(
+        [
+            Row(x=1, y=2, z=None),
+            Row(x=4, y=None, z=6),
+            Row(x=7, y=8, z=None),
+            Row(x=10, y=None, z=None),
+        ]
+    )
+
+    actual = sparkit.count_nulls(df, subset=["x", "z"])
+    excepted = spark.createDataFrame([Row(x=0, z=3)])
+
+    assert sparkit.is_dataframe_equal(actual, excepted)
+
+
 def test_join(spark):
     df1 = spark.createDataFrame([Row(id=1, x="a"), Row(id=2, x="b")])
     df2 = spark.createDataFrame([Row(id=1, y="c"), Row(id=2, y="d")])
