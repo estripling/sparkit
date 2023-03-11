@@ -28,7 +28,30 @@ pip install sparkit
 
 ## Examples
 
-- TODO
+[`union`](https://sparkit.readthedocs.io/en/stable/autoapi/sparkit/index.html#sparkit.union) multiple data frames by name (pass single and / or an iterable of data frames):
+
+```python
+>>> import sparkit
+>>> from pyspark.sql import Row, SparkSession
+>>> spark = SparkSession.builder.getOrCreate()
+>>> df1 = spark.createDataFrame([Row(x=1, y=2), Row(x=3, y=4)])
+>>> df2 = spark.createDataFrame([Row(x=5, y=6), Row(x=7, y=8)])
+>>> df3 = spark.createDataFrame([Row(x=0, y=1), Row(x=2, y=3)])
+>>> df4 = spark.createDataFrame([Row(x=5, y=3), Row(x=9, y=6)])
+>>> sparkit.union(df1, [df2, df3], df4).show()
++---+---+
+|  x|  y|
++---+---+
+|  1|  2|
+|  3|  4|
+|  5|  6|
+|  7|  8|
+|  0|  1|
+|  2|  3|
+|  5|  3|
+|  9|  6|
++---+---+
+```
 
 ## Contributing to sparkit
 
