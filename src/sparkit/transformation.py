@@ -6,10 +6,86 @@ import pyspark.sql.types as T
 from pyspark.sql import DataFrame
 
 __all__ = (
+    "add_prefix",
+    "add_suffix",
     "count_nulls",
     "join",
     "union",
 )
+
+
+def add_prefix(dataframe, prefix, subset=None):
+    """Add prefix to column names.
+
+    Parameters
+    ----------
+    dataframe : pyspark.sql.DataFrame
+        The data frame for which the column names are to be changed.
+    prefix : str
+        The string to add before a column name.
+    subset : Iterable of str, default=None
+        Specify a column selection. If None, all columns are selected.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with changed column names.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame([Row(x=1, y=2)])
+    >>> sparkit.add_prefix(df, "prefix_").show()
+    +--------+--------+
+    |prefix_x|prefix_y|
+    +--------+--------+
+    |       1|       2|
+    +--------+--------+
+    <BLANKLINE>
+    """
+    columns = subset or dataframe.columns
+    for column in columns:
+        dataframe = dataframe.withColumnRenamed(column, f"{prefix}{column}")
+    return dataframe
+
+
+def add_suffix(dataframe, suffix, subset=None):
+    """Add suffix to column names.
+
+    Parameters
+    ----------
+    dataframe : pyspark.sql.DataFrame
+        The data frame for which the column names are to be changed.
+    suffix : str
+        The string to add after a column name.
+    subset : Iterable of str, default=None
+        Specify a column selection. If None, all columns are selected.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with changed column names.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame([Row(x=1, y=2)])
+    >>> sparkit.add_suffix(df, "_suffix").show()
+    +--------+--------+
+    |x_suffix|y_suffix|
+    +--------+--------+
+    |       1|       2|
+    +--------+--------+
+    <BLANKLINE>
+    """
+    columns = subset or dataframe.columns
+    for column in columns:
+        dataframe = dataframe.withColumnRenamed(column, f"{column}{suffix}")
+    return dataframe
 
 
 def count_nulls(dataframe, subset=None):

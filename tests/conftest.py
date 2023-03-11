@@ -1,5 +1,18 @@
 import pytest
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, SparkSession
+
+
+def assert_dataframe_equal(lft_df: DataFrame, rgt_df: DataFrame) -> DataFrame:
+    """Assert that the left and right data frames are equal."""
+    lft_schema = lft_df.schema.simpleString()
+    rgt_schema = rgt_df.schema.simpleString()
+    assert lft_schema == rgt_schema, "schema mismatch"
+
+    assert lft_df.count() == rgt_df.count(), "row count mismatch"
+
+    lft_rows = lft_df.subtract(rgt_df)
+    rgt_rows = rgt_df.subtract(lft_df)
+    assert (lft_rows.count() == 0) and (rgt_rows.count() == 0), "row mismatch"
 
 
 @pytest.fixture(scope="session")
