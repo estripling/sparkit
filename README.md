@@ -28,6 +28,24 @@ pip install sparkit
 
 ## Examples
 
+[`join`](https://sparkit.readthedocs.io/en/stable/autoapi/sparkit/index.html#sparkit.join) multiple data frames on common key (pass single and / or an iterable of data frames):
+
+```python
+>>> import sparkit
+>>> from pyspark.sql import Row, SparkSession
+>>> spark = SparkSession.builder.getOrCreate()
+>>> df1 = spark.createDataFrame([Row(id=1, x="a"), Row(id=2, x="b")])
+>>> df2 = spark.createDataFrame([Row(id=1, y="c"), Row(id=2, y="d")])
+>>> df3 = spark.createDataFrame([Row(id=1, z="e"), Row(id=2, z="f")])
+>>> sparkit.join([df1, df2], df3, on="id").show()
++---+---+---+---+
+| id|  x|  y|  z|
++---+---+---+---+
+|  1|  a|  c|  e|
+|  2|  b|  d|  f|
++---+---+---+---+
+```
+
 [`union`](https://sparkit.readthedocs.io/en/stable/autoapi/sparkit/index.html#sparkit.union) multiple data frames by name (pass single and / or an iterable of data frames):
 
 ```python
