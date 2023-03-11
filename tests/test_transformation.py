@@ -3,6 +3,17 @@ from pyspark.sql import Row
 import sparkit
 
 
+def test_join(spark):
+    df1 = spark.createDataFrame([Row(id=1, x="a"), Row(id=2, x="b")])
+    df2 = spark.createDataFrame([Row(id=1, y="c"), Row(id=2, y="d")])
+    df3 = spark.createDataFrame([Row(id=1, z="e"), Row(id=2, z="f")])
+
+    actual = sparkit.join(df1, df2, df3, on="id")
+    excepted = df1.join(df2, "id").join(df3, "id")
+
+    assert sparkit.is_dataframe_equal(actual, excepted)
+
+
 def test_union(spark):
     df1 = spark.createDataFrame([Row(x=1, y=2), Row(x=3, y=4)])
     df2 = spark.createDataFrame([Row(x=5, y=6), Row(x=7, y=8)])
