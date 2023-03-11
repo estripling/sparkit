@@ -1,6 +1,21 @@
 from pyspark.sql import Row
+from tests.conftest import assert_dataframe_equal
 
 import sparkit
+
+
+def test_add_suffix(spark):
+    df = spark.createDataFrame([Row(x=1, y=2)])
+
+    # all columns
+    actual = sparkit.add_suffix(df, "_suffix")
+    excepted = spark.createDataFrame([Row(x_suffix=1, y_suffix=2)])
+    assert_dataframe_equal(actual, excepted)
+
+    # with column selection
+    actual = sparkit.add_suffix(df, "_suffix", ["x"])
+    excepted = spark.createDataFrame([Row(x_suffix=1, y=2)])
+    assert_dataframe_equal(actual, excepted)
 
 
 def test_count_nulls(spark):
