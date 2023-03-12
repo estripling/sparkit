@@ -3,12 +3,13 @@ import functools
 import bumbag
 import pyspark.sql.functions as F
 import pyspark.sql.types as T
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, Window
 
 __all__ = (
     "add_prefix",
     "add_suffix",
     "count_nulls",
+    "freq",
     "join",
     "union",
 )
@@ -126,6 +127,70 @@ def count_nulls(dataframe, subset=None):
     columns = subset or dataframe.columns
     return dataframe.agg(
         *[F.sum(F.isnull(c).cast(T.LongType())).alias(c) for c in columns]
+    )
+
+
+def freq(dataframe, columns):
+    """Compute value frequencies.
+
+    Given some columns, calculate for each distinct value:
+     - the frequency (``frq``),
+     - the cumulative frequency (``cml_frq``),
+     - the relative frequency (``rel_frq``), and
+     - the cumulative relative frequency (``rel_cml_frq``).
+
+    Parameters
+    ----------
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+    columns : list of str or pyspark.sql.Column
+        Specify the columns for which to compute the value frequency.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with value frequencies for specified columns.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame(
+    ...     [
+    ...         Row(x="a"),
+    ...         Row(x="c"),
+    ...         Row(x="b"),
+    ...         Row(x="g"),
+    ...         Row(x="h"),
+    ...         Row(x="a"),
+    ...         Row(x="g"),
+    ...         Row(x="a"),
+    ...     ]
+    ... )
+    >>> sparkit.freq(df, columns=["x"]).show()
+    +---+---+-------+-------+-----------+
+    |  x|frq|cml_frq|rel_frq|rel_cml_frq|
+    +---+---+-------+-------+-----------+
+    |  a|  3|      3|  0.375|      0.375|
+    |  g|  2|      5|   0.25|      0.625|
+    |  b|  1|      6|  0.125|       0.75|
+    |  c|  1|      7|  0.125|      0.875|
+    |  h|  1|      8|  0.125|        1.0|
+    +---+---+-------+-------+-----------+
+    <BLANKLINE>
+    """
+    # Use F.lit(1) for an ungrouped specification
+    win_sorted = Window.partitionBy(F.lit(1)).orderBy(F.desc("frq"), *columns)
+    win_unsorted = Window.partitionBy(F.lit(1))
+    return (
+        dataframe.groupby(columns)
+        .count()
+        .withColumnRenamed("count", "frq")
+        .withColumn("cml_frq", F.sum("frq").over(win_sorted))
+        .withColumn("rel_frq", F.col("frq") / F.sum("frq").over(win_unsorted))
+        .withColumn("rel_cml_frq", F.sum("rel_frq").over(win_sorted))
+        .orderBy("cml_frq")
     )
 
 

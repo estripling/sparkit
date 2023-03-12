@@ -47,6 +47,57 @@ def test_count_nulls(spark):
     assert_dataframe_equal(actual, excepted)
 
 
+def test_freq(spark):
+    # single column
+    frequencies = {"a": 3, "b": 1, "c": 1, "g": 2, "h": 1}
+    df = spark.createDataFrame(
+        [Row(x=v) for v, f in frequencies.items() for _ in range(f)]
+    )
+
+    excepted = spark.createDataFrame(
+        [
+            Row(x="a", frq=3, cml_frq=3, rel_frq=0.375, rel_cml_frq=0.375),
+            Row(x="g", frq=2, cml_frq=5, rel_frq=0.25, rel_cml_frq=0.625),
+            Row(x="b", frq=1, cml_frq=6, rel_frq=0.125, rel_cml_frq=0.75),
+            Row(x="c", frq=1, cml_frq=7, rel_frq=0.125, rel_cml_frq=0.875),
+            Row(x="h", frq=1, cml_frq=8, rel_frq=0.125, rel_cml_frq=1.0),
+        ]
+    )
+
+    for columns in ["x", ["x"]]:
+        actual = sparkit.freq(df, columns)
+        assert_dataframe_equal(actual, excepted)
+
+    # multiple columns
+    df = spark.createDataFrame(
+        [
+            Row(x="a", y=1),
+            Row(x="c", y=1),
+            Row(x="b", y=1),
+            Row(x="g", y=2),
+            Row(x="h", y=1),
+            Row(x="a", y=1),
+            Row(x="g", y=2),
+            Row(x="a", y=2),
+        ]
+    )
+    actual = sparkit.freq(df, ["x"])  # check single column again
+    assert_dataframe_equal(actual, excepted)
+
+    actual = sparkit.freq(df, ["x", "y"])
+    excepted = spark.createDataFrame(
+        [
+            Row(x="a", y=1, frq=2, cml_frq=2, rel_frq=0.25, rel_cml_frq=0.25),
+            Row(x="g", y=2, frq=2, cml_frq=4, rel_frq=0.25, rel_cml_frq=0.5),
+            Row(x="a", y=2, frq=1, cml_frq=5, rel_frq=0.125, rel_cml_frq=0.625),
+            Row(x="b", y=1, frq=1, cml_frq=6, rel_frq=0.125, rel_cml_frq=0.75),
+            Row(x="c", y=1, frq=1, cml_frq=7, rel_frq=0.125, rel_cml_frq=0.875),
+            Row(x="h", y=1, frq=1, cml_frq=8, rel_frq=0.125, rel_cml_frq=1.0),
+        ]
+    )
+    assert_dataframe_equal(actual, excepted)
+
+
 def test_join(spark):
     df1 = spark.createDataFrame([Row(id=1, x="a"), Row(id=2, x="b")])
     df2 = spark.createDataFrame([Row(id=1, y="c"), Row(id=2, y="d")])
