@@ -3,6 +3,9 @@ import functools
 import bumbag
 import pyspark.sql.functions as F
 import pyspark.sql.types as T
+import toolz
+from IPython import get_ipython
+from IPython.display import HTML, display
 from pyspark.sql import DataFrame, Window
 
 __all__ = (
@@ -11,6 +14,7 @@ __all__ = (
     "count_nulls",
     "freq",
     "join",
+    "peek",
     "union",
 )
 
@@ -230,6 +234,97 @@ def join(*dataframes, on, how="inner"):
     """
     join = functools.partial(DataFrame.join, on=on, how=how)
     return functools.reduce(join, bumbag.flatten(dataframes))
+
+
+@toolz.curry
+def peek(dataframe, n=3, cache=False, schema=False, index=False):
+    """Have a quick look at the data frame and return it.
+
+    This function is handy when chaining data frame transformations.
+
+    Parameters
+    ----------
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+    n : int, default=3
+        Specify the number of rows to show. If `n <= 0`, no rows are shown.
+    cache : bool, default=False
+        Specify if data frame should be cached.
+    schema : bool, default=False
+        Specify if schema should be printed.
+    index : bool, default=False
+        Specify if a row index should be shown.
+
+    Notes
+    -----
+    - Function is curried.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        The input data frame.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame(
+    ...     [
+    ...         Row(x=1, y="a"),
+    ...         Row(x=3, y=None),
+    ...         Row(x=None, y="c"),
+    ...     ]
+    ... )
+    >>> df.show()
+    +----+----+
+    |   x|   y|
+    +----+----+
+    |   1|   a|
+    |   3|null|
+    |null|   c|
+    +----+----+
+    <BLANKLINE>
+    >>> filtered_df = (
+    ...     df.transform(sparkit.peek)
+    ...     .where("x IS NOT NULL")
+    ...     .transform(sparkit.peek)
+    ... )
+    shape=(3, 2)
+       x    y
+     1.0    a
+     3.0 None
+    None    c
+    shape=(2, 2)
+     x    y
+     1    a
+     3 None
+    """
+    df = dataframe if dataframe.is_cached else dataframe.cache() if cache else dataframe
+
+    num_rows = df.count()
+    num_cols = len(df.columns)
+    print(f"shape=({num_rows:,}, {num_cols:,})")
+
+    if schema:
+        print()
+        df.printSchema()
+
+    if n > 0:
+        pandas_df = df.limit(n).toPandas()
+        pandas_df.index += 1
+
+        is_inside_notebook = get_ipython() is not None
+
+        df_repr = (
+            pandas_df.to_html(index=index, na_rep="None", col_space="20px")
+            if is_inside_notebook
+            else pandas_df.to_string(index=index, na_rep="None")
+        )
+
+        display(HTML(df_repr)) if is_inside_notebook else print(df_repr)
+
+    return df
 
 
 def union(*dataframes):

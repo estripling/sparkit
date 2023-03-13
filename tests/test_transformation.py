@@ -1,3 +1,4 @@
+import pyspark.sql.functions as F
 from pyspark.sql import Row
 from tests.conftest import assert_dataframe_equal
 
@@ -105,6 +106,17 @@ def test_join(spark):
 
     actual = sparkit.join(df1, df2, df3, on="id")
     excepted = df1.join(df2, "id").join(df3, "id")
+    assert_dataframe_equal(actual, excepted)
+
+
+def test_peek(spark):
+    df = spark.createDataFrame([Row(x=1, y="a"), Row(x=3, y=None), Row(x=None, y="c")])
+    actual = (
+        df.transform(sparkit.peek(schema=True))
+        .where(F.col("x").isNotNull())
+        .transform(sparkit.peek)
+    )
+    excepted = df.where(F.col("x").isNotNull())
     assert_dataframe_equal(actual, excepted)
 
 

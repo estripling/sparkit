@@ -2,7 +2,7 @@ import pytest
 from pyspark.sql import DataFrame, SparkSession
 
 
-def assert_dataframe_equal(lft_df: DataFrame, rgt_df: DataFrame) -> DataFrame:
+def assert_dataframe_equal(lft_df: DataFrame, rgt_df: DataFrame):
     """Assert that the left and right data frames are equal."""
     lft_schema = lft_df.schema.simpleString()
     rgt_schema = rgt_df.schema.simpleString()
