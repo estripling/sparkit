@@ -290,25 +290,27 @@ def peek(dataframe, n=3, cache=False, schema=False, index=False):
     ...     .where("x IS NOT NULL")
     ...     .transform(sparkit.peek)
     ... )
-    shape=(3, 2)
+    shape = (3, 2)
        x    y
      1.0    a
      3.0 None
     None    c
-    shape=(2, 2)
+    shape = (2, 2)
      x    y
      1    a
      3 None
     """
     df = dataframe if dataframe.is_cached else dataframe.cache() if cache else dataframe
 
-    num_rows = df.count()
-    num_cols = len(df.columns)
-    print(f"shape=({num_rows:,}, {num_cols:,})")
-
     if schema:
-        print()
         df.printSchema()
+
+    def fmt(x):
+        return f"{x:,}".replace(",", "_")
+
+    num_rows = fmt(df.count())
+    num_cols = fmt(len(df.columns))
+    print(f"shape = ({num_rows}, {num_cols})")
 
     if n > 0:
         pandas_df = df.limit(n).toPandas()
