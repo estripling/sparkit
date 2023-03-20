@@ -18,6 +18,11 @@ def test_add_prefix(spark):
     excepted = spark.createDataFrame([Row(prefix_x=1, y=2)])
     assert_dataframe_equal(actual, excepted)
 
+    # used as transformation function
+    actual = df.transform(sparkit.add_prefix(prefix="prefix_", subset=["x"]))
+    excepted = spark.createDataFrame([Row(prefix_x=1, y=2)])
+    assert_dataframe_equal(actual, excepted)
+
 
 def test_add_suffix(spark):
     df = spark.createDataFrame([Row(x=1, y=2)])
@@ -29,6 +34,11 @@ def test_add_suffix(spark):
 
     # with column selection
     actual = sparkit.add_suffix(df, "_suffix", ["x"])
+    excepted = spark.createDataFrame([Row(x_suffix=1, y=2)])
+    assert_dataframe_equal(actual, excepted)
+
+    # used as transformation function
+    actual = df.transform(sparkit.add_suffix(suffix="_suffix", subset=["x"]))
     excepted = spark.createDataFrame([Row(x_suffix=1, y=2)])
     assert_dataframe_equal(actual, excepted)
 
@@ -68,6 +78,10 @@ def test_freq(spark):
     for columns in ["x", ["x"]]:
         actual = sparkit.freq(df, columns)
         assert_dataframe_equal(actual, excepted)
+
+    # used as transformation function
+    actual = df.transform(sparkit.freq(columns=["x"]))
+    assert_dataframe_equal(actual, excepted)
 
     # multiple columns
     df = spark.createDataFrame(

@@ -19,6 +19,7 @@ __all__ = (
 )
 
 
+@toolz.curry
 def add_prefix(dataframe, prefix, subset=None):
     """Add prefix to column names.
 
@@ -30,6 +31,10 @@ def add_prefix(dataframe, prefix, subset=None):
         The string to add before a column name.
     subset : Iterable of str, default=None
         Specify a column selection. If None, all columns are selected.
+
+    Notes
+    -----
+    - Function is curried.
 
     Returns
     -------
@@ -56,6 +61,7 @@ def add_prefix(dataframe, prefix, subset=None):
     return dataframe
 
 
+@toolz.curry
 def add_suffix(dataframe, suffix, subset=None):
     """Add suffix to column names.
 
@@ -67,6 +73,10 @@ def add_suffix(dataframe, suffix, subset=None):
         The string to add after a column name.
     subset : Iterable of str, default=None
         Specify a column selection. If None, all columns are selected.
+
+    Notes
+    -----
+    - Function is curried.
 
     Returns
     -------
@@ -134,6 +144,7 @@ def count_nulls(dataframe, subset=None):
     )
 
 
+@toolz.curry
 def freq(dataframe, columns):
     """Compute value frequencies.
 
@@ -149,6 +160,10 @@ def freq(dataframe, columns):
         Input data frame.
     columns : list of str or pyspark.sql.Column
         Specify the columns for which to compute the value frequency.
+
+    Notes
+    -----
+    - Function is curried.
 
     Returns
     -------
@@ -237,7 +252,7 @@ def join(*dataframes, on, how="inner"):
 
 
 @toolz.curry
-def peek(dataframe, n=3, cache=False, schema=False, index=False):
+def peek(dataframe, n=6, cache=False, schema=False, index=False):
     """Have a quick look at the data frame and return it.
 
     This function is handy when chaining data frame transformations.
@@ -246,7 +261,7 @@ def peek(dataframe, n=3, cache=False, schema=False, index=False):
     ----------
     dataframe : pyspark.sql.DataFrame
         Input data frame.
-    n : int, default=3
+    n : int, default=6
         Specify the number of rows to show. If `n <= 0`, no rows are shown.
     cache : bool, default=False
         Specify if data frame should be cached.
