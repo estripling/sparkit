@@ -19,6 +19,7 @@ __all__ = (
 )
 
 
+@toolz.curry
 def add_prefix(dataframe, prefix, subset=None):
     """Add prefix to column names.
 
@@ -30,6 +31,10 @@ def add_prefix(dataframe, prefix, subset=None):
         The string to add before a column name.
     subset : Iterable of str, default=None
         Specify a column selection. If None, all columns are selected.
+
+    Notes
+    -----
+    - Function is curried.
 
     Returns
     -------

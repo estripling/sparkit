@@ -18,6 +18,11 @@ def test_add_prefix(spark):
     excepted = spark.createDataFrame([Row(prefix_x=1, y=2)])
     assert_dataframe_equal(actual, excepted)
 
+    # used as transformation function
+    actual = df.transform(sparkit.add_prefix(prefix="prefix_", subset=["x"]))
+    excepted = spark.createDataFrame([Row(prefix_x=1, y=2)])
+    assert_dataframe_equal(actual, excepted)
+
 
 def test_add_suffix(spark):
     df = spark.createDataFrame([Row(x=1, y=2)])
