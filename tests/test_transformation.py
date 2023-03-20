@@ -1,4 +1,5 @@
 import pyspark.sql.functions as F
+import pyspark.sql.types as T
 from pyspark.sql import Row
 from tests.conftest import assert_dataframe_equal
 
@@ -141,4 +142,41 @@ def test_union(spark):
 
     actual = sparkit.union(df1, df2, df3)
     excepted = df1.unionByName(df2).unionByName(df3)
+    assert_dataframe_equal(actual, excepted)
+
+
+def test_with_index(spark):
+    df = spark.createDataFrame(
+        [
+            Row(x="a"),
+            Row(x="b"),
+            Row(x="c"),
+            Row(x="d"),
+            Row(x="e"),
+            Row(x="f"),
+            Row(x="g"),
+            Row(x="h"),
+        ],
+        schema=T.StructType([T.StructField("x", T.StringType(), True)]),
+    )
+
+    actual = sparkit.with_index(df)
+    excepted = spark.createDataFrame(
+        [
+            Row(idx=1, x="a"),
+            Row(idx=2, x="b"),
+            Row(idx=3, x="c"),
+            Row(idx=4, x="d"),
+            Row(idx=5, x="e"),
+            Row(idx=6, x="f"),
+            Row(idx=7, x="g"),
+            Row(idx=8, x="h"),
+        ],
+        schema=T.StructType(
+            [
+                T.StructField("idx", T.IntegerType(), True),
+                T.StructField("x", T.StringType(), True),
+            ]
+        ),
+    )
     assert_dataframe_equal(actual, excepted)
