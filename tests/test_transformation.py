@@ -69,6 +69,10 @@ def test_freq(spark):
         actual = sparkit.freq(df, columns)
         assert_dataframe_equal(actual, excepted)
 
+    # used as transformation function
+    actual = df.transform(sparkit.freq(columns=["x"]))
+    assert_dataframe_equal(actual, excepted)
+
     # multiple columns
     df = spark.createDataFrame(
         [

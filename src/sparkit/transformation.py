@@ -134,6 +134,7 @@ def count_nulls(dataframe, subset=None):
     )
 
 
+@toolz.curry
 def freq(dataframe, columns):
     """Compute value frequencies.
 
@@ -149,6 +150,10 @@ def freq(dataframe, columns):
         Input data frame.
     columns : list of str or pyspark.sql.Column
         Specify the columns for which to compute the value frequency.
+
+    Notes
+    -----
+    - Function is curried.
 
     Returns
     -------
