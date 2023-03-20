@@ -61,6 +61,7 @@ def add_prefix(dataframe, prefix, subset=None):
     return dataframe
 
 
+@toolz.curry
 def add_suffix(dataframe, suffix, subset=None):
     """Add suffix to column names.
 
@@ -72,6 +73,10 @@ def add_suffix(dataframe, suffix, subset=None):
         The string to add after a column name.
     subset : Iterable of str, default=None
         Specify a column selection. If None, all columns are selected.
+
+    Notes
+    -----
+    - Function is curried.
 
     Returns
     -------

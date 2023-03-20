@@ -37,6 +37,11 @@ def test_add_suffix(spark):
     excepted = spark.createDataFrame([Row(x_suffix=1, y=2)])
     assert_dataframe_equal(actual, excepted)
 
+    # used as transformation function
+    actual = df.transform(sparkit.add_suffix(suffix="_suffix", subset=["x"]))
+    excepted = spark.createDataFrame([Row(x_suffix=1, y=2)])
+    assert_dataframe_equal(actual, excepted)
+
 
 def test_count_nulls(spark):
     df = spark.createDataFrame(
