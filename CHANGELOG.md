@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.0 (2023-03-20)
+### Feature
+* Add with_index function ([#12](https://github.com/estripling/sparkit/issues/12)) ([`0f58112`](https://github.com/estripling/sparkit/commit/0f5811294568d12b7793c2452ae5ade411338b7b))
+
 ## v0.2.0 (2023-03-13)
 ### Feature
 * Add peek function ([#9](https://github.com/estripling/sparkit/issues/9)) ([`d3e180f`](https://github.com/estripling/sparkit/commit/d3e180fa535527f5984085a81d1f04088313d0b2))
