@@ -252,7 +252,7 @@ def join(*dataframes, on, how="inner"):
 
 
 @toolz.curry
-def peek(dataframe, n=3, cache=False, schema=False, index=False):
+def peek(dataframe, n=6, cache=False, schema=False, index=False):
     """Have a quick look at the data frame and return it.
 
     This function is handy when chaining data frame transformations.
@@ -261,7 +261,7 @@ def peek(dataframe, n=3, cache=False, schema=False, index=False):
     ----------
     dataframe : pyspark.sql.DataFrame
         Input data frame.
-    n : int, default=3
+    n : int, default=6
         Specify the number of rows to show. If `n <= 0`, no rows are shown.
     cache : bool, default=False
         Specify if data frame should be cached.
