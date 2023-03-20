@@ -16,6 +16,7 @@ __all__ = (
     "join",
     "peek",
     "union",
+    "with_index",
 )
 
 
@@ -379,3 +380,38 @@ def union(*dataframes):
     <BLANKLINE>
     """
     return functools.reduce(DataFrame.unionByName, bumbag.flatten(dataframes))
+
+
+def with_index(dataframe):
+    """Add an index column.
+
+    Parameters
+    ----------
+    dataframe : pyspark.sql.DataFrame
+        Input data frame to index.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with the first column being a consecutive row index.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame([Row(x="a"), Row(x="b"), Row(x="c"), Row(x="d")])
+    >>> sparkit.with_index(df).show()
+    +---+---+
+    |idx|  x|
+    +---+---+
+    |  1|  a|
+    |  2|  b|
+    |  3|  c|
+    |  4|  d|
+    +---+---+
+    <BLANKLINE>
+    """
+    columns = dataframe.columns
+    win = Window.partitionBy(F.lit(1)).orderBy(F.monotonically_increasing_id())
+    return dataframe.withColumn("idx", F.row_number().over(win)).select("idx", *columns)
