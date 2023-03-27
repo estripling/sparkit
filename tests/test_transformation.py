@@ -11,18 +11,18 @@ def test_add_prefix(spark):
 
     # all columns
     actual = sparkit.add_prefix(df, "prefix_")
-    excepted = spark.createDataFrame([Row(prefix_x=1, prefix_y=2)])
-    assert_dataframe_equal(actual, excepted)
+    expected = spark.createDataFrame([Row(prefix_x=1, prefix_y=2)])
+    assert_dataframe_equal(actual, expected)
 
     # with column selection
     actual = sparkit.add_prefix(df, "prefix_", ["x"])
-    excepted = spark.createDataFrame([Row(prefix_x=1, y=2)])
-    assert_dataframe_equal(actual, excepted)
+    expected = spark.createDataFrame([Row(prefix_x=1, y=2)])
+    assert_dataframe_equal(actual, expected)
 
     # used as transformation function
     actual = df.transform(sparkit.add_prefix(prefix="prefix_", subset=["x"]))
-    excepted = spark.createDataFrame([Row(prefix_x=1, y=2)])
-    assert_dataframe_equal(actual, excepted)
+    expected = spark.createDataFrame([Row(prefix_x=1, y=2)])
+    assert_dataframe_equal(actual, expected)
 
 
 def test_add_suffix(spark):
@@ -30,18 +30,18 @@ def test_add_suffix(spark):
 
     # all columns
     actual = sparkit.add_suffix(df, "_suffix")
-    excepted = spark.createDataFrame([Row(x_suffix=1, y_suffix=2)])
-    assert_dataframe_equal(actual, excepted)
+    expected = spark.createDataFrame([Row(x_suffix=1, y_suffix=2)])
+    assert_dataframe_equal(actual, expected)
 
     # with column selection
     actual = sparkit.add_suffix(df, "_suffix", ["x"])
-    excepted = spark.createDataFrame([Row(x_suffix=1, y=2)])
-    assert_dataframe_equal(actual, excepted)
+    expected = spark.createDataFrame([Row(x_suffix=1, y=2)])
+    assert_dataframe_equal(actual, expected)
 
     # used as transformation function
     actual = df.transform(sparkit.add_suffix(suffix="_suffix", subset=["x"]))
-    excepted = spark.createDataFrame([Row(x_suffix=1, y=2)])
-    assert_dataframe_equal(actual, excepted)
+    expected = spark.createDataFrame([Row(x_suffix=1, y=2)])
+    assert_dataframe_equal(actual, expected)
 
 
 def test_count_nulls(spark):
@@ -55,8 +55,8 @@ def test_count_nulls(spark):
     )
 
     actual = sparkit.count_nulls(df, subset=["x", "z"])
-    excepted = spark.createDataFrame([Row(x=0, z=3)])
-    assert_dataframe_equal(actual, excepted)
+    expected = spark.createDataFrame([Row(x=0, z=3)])
+    assert_dataframe_equal(actual, expected)
 
 
 def test_freq(spark):
@@ -66,7 +66,7 @@ def test_freq(spark):
         [Row(x=v) for v, f in frequencies.items() for _ in range(f)]
     )
 
-    excepted = spark.createDataFrame(
+    expected = spark.createDataFrame(
         [
             Row(x="a", frq=3, cml_frq=3, rel_frq=0.375, rel_cml_frq=0.375),
             Row(x="g", frq=2, cml_frq=5, rel_frq=0.25, rel_cml_frq=0.625),
@@ -78,11 +78,11 @@ def test_freq(spark):
 
     for columns in ["x", ["x"]]:
         actual = sparkit.freq(df, columns)
-        assert_dataframe_equal(actual, excepted)
+        assert_dataframe_equal(actual, expected)
 
     # used as transformation function
     actual = df.transform(sparkit.freq(columns=["x"]))
-    assert_dataframe_equal(actual, excepted)
+    assert_dataframe_equal(actual, expected)
 
     # multiple columns
     df = spark.createDataFrame(
@@ -98,10 +98,10 @@ def test_freq(spark):
         ]
     )
     actual = sparkit.freq(df, ["x"])  # check single column again
-    assert_dataframe_equal(actual, excepted)
+    assert_dataframe_equal(actual, expected)
 
     actual = sparkit.freq(df, ["x", "y"])
-    excepted = spark.createDataFrame(
+    expected = spark.createDataFrame(
         [
             Row(x="a", y=1, frq=2, cml_frq=2, rel_frq=0.25, rel_cml_frq=0.25),
             Row(x="g", y=2, frq=2, cml_frq=4, rel_frq=0.25, rel_cml_frq=0.5),
@@ -111,7 +111,7 @@ def test_freq(spark):
             Row(x="h", y=1, frq=1, cml_frq=8, rel_frq=0.125, rel_cml_frq=1.0),
         ]
     )
-    assert_dataframe_equal(actual, excepted)
+    assert_dataframe_equal(actual, expected)
 
 
 def test_join(spark):
@@ -120,8 +120,8 @@ def test_join(spark):
     df3 = spark.createDataFrame([Row(id=1, z="e"), Row(id=2, z="f")])
 
     actual = sparkit.join(df1, df2, df3, on="id")
-    excepted = df1.join(df2, "id").join(df3, "id")
-    assert_dataframe_equal(actual, excepted)
+    expected = df1.join(df2, "id").join(df3, "id")
+    assert_dataframe_equal(actual, expected)
 
 
 def test_peek(spark):
@@ -131,8 +131,8 @@ def test_peek(spark):
         .where(F.col("x").isNotNull())
         .transform(sparkit.peek)
     )
-    excepted = df.where(F.col("x").isNotNull())
-    assert_dataframe_equal(actual, excepted)
+    expected = df.where(F.col("x").isNotNull())
+    assert_dataframe_equal(actual, expected)
 
 
 def test_union(spark):
@@ -141,8 +141,8 @@ def test_union(spark):
     df3 = spark.createDataFrame([Row(x=0, y=1), Row(x=2, y=3)])
 
     actual = sparkit.union(df1, df2, df3)
-    excepted = df1.unionByName(df2).unionByName(df3)
-    assert_dataframe_equal(actual, excepted)
+    expected = df1.unionByName(df2).unionByName(df3)
+    assert_dataframe_equal(actual, expected)
 
 
 def test_with_index(spark):
@@ -161,7 +161,7 @@ def test_with_index(spark):
     )
 
     actual = sparkit.with_index(df)
-    excepted = spark.createDataFrame(
+    expected = spark.createDataFrame(
         [
             Row(idx=1, x="a"),
             Row(idx=2, x="b"),
@@ -179,7 +179,7 @@ def test_with_index(spark):
             ]
         ),
     )
-    assert_dataframe_equal(actual, excepted)
+    assert_dataframe_equal(actual, expected)
 
 
 def test_with_weekday_name(spark):
