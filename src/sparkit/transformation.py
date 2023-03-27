@@ -17,6 +17,7 @@ __all__ = (
     "peek",
     "union",
     "with_index",
+    "with_weekday_name",
 )
 
 
@@ -415,3 +416,60 @@ def with_index(dataframe):
     columns = dataframe.columns
     win = Window.partitionBy(F.lit(1)).orderBy(F.monotonically_increasing_id())
     return dataframe.withColumn("idx", F.row_number().over(win)).select("idx", *columns)
+
+
+@toolz.curry
+def with_weekday_name(date_column_name, new_column_name, dataframe):
+    """Add column with the name of the weekday.
+
+    Parameters
+    ----------
+    date_column_name : str
+        Specify the name of the date column from which to determine the weekday.
+    new_column_name : str
+        Specify the name of the new weekday column.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+
+    Notes
+    -----
+    Function is curried.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with the weekday column.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame(
+    ...     [Row(day="2023-05-01"), Row(day=None), Row(day="2023-05-03")]
+    ... )
+    >>> sparkit.with_weekday_name("day", "weekday", df).show()
+    +----------+-------+
+    |       day|weekday|
+    +----------+-------+
+    |2023-05-01|    Mon|
+    |      null|   null|
+    |2023-05-03|    Wed|
+    +----------+-------+
+    <BLANKLINE>
+    """
+
+    def determine_weekday(date_column):
+        weekday_int = F.dayofweek(date_column)
+        return (
+            F.when(weekday_int == 1, "Sun")
+            .when(weekday_int == 2, "Mon")
+            .when(weekday_int == 3, "Tue")
+            .when(weekday_int == 4, "Wed")
+            .when(weekday_int == 5, "Thu")
+            .when(weekday_int == 6, "Fri")
+            .when(weekday_int == 7, "Sat")
+            .otherwise(None)
+        )
+
+    return dataframe.withColumn(new_column_name, determine_weekday(date_column_name))

@@ -180,3 +180,42 @@ def test_with_index(spark):
         ),
     )
     assert_dataframe_equal(actual, excepted)
+
+
+def test_with_weekday_name(spark):
+    df = spark.createDataFrame(
+        [
+            Row(day="2023-05-01"),
+            Row(day="2023-05-02"),
+            Row(day="2023-05-03"),
+            Row(day="2023-05-04"),
+            Row(day="2023-05-05"),
+            Row(day="2023-05-06"),
+            Row(day="2023-05-07"),
+            Row(day=None),
+        ]
+    )
+    actual = sparkit.with_weekday_name("day", "weekday", df)
+    expected = spark.createDataFrame(
+        [
+            Row(day="2023-05-01", weekday="Mon"),
+            Row(day="2023-05-02", weekday="Tue"),
+            Row(day="2023-05-03", weekday="Wed"),
+            Row(day="2023-05-04", weekday="Thu"),
+            Row(day="2023-05-05", weekday="Fri"),
+            Row(day="2023-05-06", weekday="Sat"),
+            Row(day="2023-05-07", weekday="Sun"),
+            Row(day=None, weekday=None),
+        ]
+    )
+    assert_dataframe_equal(actual, expected)
+
+    actual = sparkit.with_weekday_name(
+        "day",
+        "weekday",
+        df.withColumn("day", F.to_date("day", "yyyy-MM-dd")),
+    )
+    assert_dataframe_equal(
+        actual,
+        expected.withColumn("day", F.to_date("day", "yyyy-MM-dd")),
+    )
