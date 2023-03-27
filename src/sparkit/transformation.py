@@ -36,7 +36,7 @@ def add_prefix(dataframe, prefix, subset=None):
 
     Notes
     -----
-    - Function is curried.
+    Function is curried.
 
     Returns
     -------
@@ -78,7 +78,7 @@ def add_suffix(dataframe, suffix, subset=None):
 
     Notes
     -----
-    - Function is curried.
+    Function is curried.
 
     Returns
     -------
@@ -165,7 +165,7 @@ def freq(dataframe, columns):
 
     Notes
     -----
-    - Function is curried.
+    Function is curried.
 
     Returns
     -------
@@ -274,7 +274,7 @@ def peek(dataframe, n=6, cache=False, schema=False, index=False):
 
     Notes
     -----
-    - Function is curried.
+    Function is curried.
 
     Returns
     -------
