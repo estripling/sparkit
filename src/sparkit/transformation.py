@@ -18,6 +18,7 @@ __all__ = (
     "union",
     "with_endofweek_date",
     "with_index",
+    "with_startofweek_date",
     "with_weekday_name",
 )
 
@@ -500,6 +501,89 @@ def with_index(dataframe):
     columns = dataframe.columns
     win = Window.partitionBy(F.lit(1)).orderBy(F.monotonically_increasing_id())
     return dataframe.withColumn("idx", F.row_number().over(win)).select("idx", *columns)
+
+
+@toolz.curry
+def with_startofweek_date(
+    date_column_name,
+    new_column_name,
+    dataframe,
+    last_weekday_name="Sun",
+):
+    """Add column with the start of the week date.
+
+    Parameters
+    ----------
+    date_column_name : str
+        Specify the name of the date column from which to determine the date that
+        corresponds to the start of the week.
+    new_column_name : str
+        Specify the name of the new column that is added to the data frame.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+    last_weekday_name : str, default="Sun"
+        Specify the name of the last weekday.
+
+    Notes
+    -----
+    Function is curried.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with the start of week date column.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame(
+    ...     [
+    ...         Row(day="2023-05-01"),
+    ...         Row(day=None),
+    ...         Row(day="2023-05-03"),
+    ...         Row(day="2023-05-08"),
+    ...         Row(day="2023-05-21"),
+    ...     ],
+    ... )
+    >>> sparkit.with_startofweek_date("day", "startofweek", df).show()
+    +----------+-----------+
+    |       day|startofweek|
+    +----------+-----------+
+    |2023-05-01| 2023-05-01|
+    |      null|       null|
+    |2023-05-03| 2023-05-01|
+    |2023-05-08| 2023-05-08|
+    |2023-05-21| 2023-05-15|
+    +----------+-----------+
+    <BLANKLINE>
+
+    >>> sparkit.with_startofweek_date(
+    ...     "day", "startofweek", df, last_weekday_name="Sat"
+    ... ).show()
+    +----------+-----------+
+    |       day|startofweek|
+    +----------+-----------+
+    |2023-05-01| 2023-04-30|
+    |      null|       null|
+    |2023-05-03| 2023-04-30|
+    |2023-05-08| 2023-05-07|
+    |2023-05-21| 2023-05-21|
+    +----------+-----------+
+    <BLANKLINE>
+    """
+    tmp_column = "endofweek"
+    with_endofweek = with_endofweek_date(
+        date_column_name,
+        tmp_column,
+        last_weekday_name=last_weekday_name,
+    )
+    return (
+        dataframe.transform(with_endofweek)
+        .withColumn(new_column_name, F.date_sub(tmp_column, 6))
+        .drop(tmp_column)
+    )
 
 
 @toolz.curry
