@@ -475,8 +475,7 @@ def with_endofweek_date(
     Parameters
     ----------
     date_column_name : str
-        Specify the name of the date column from which to determine the date that
-        corresponds to the end of the week.
+        Specify the name of the date column.
     new_column_name : str
         Specify the name of the new column to be added to the data frame.
     dataframe : pyspark.sql.DataFrame
@@ -593,8 +592,7 @@ def with_startofweek_date(
     Parameters
     ----------
     date_column_name : str
-        Specify the name of the date column from which to determine the date that
-        corresponds to the start of the week.
+        Specify the name of the date column.
     new_column_name : str
         Specify the name of the new column to be added to the data frame.
     dataframe : pyspark.sql.DataFrame
@@ -671,7 +669,7 @@ def with_weekday_name(date_column_name, new_column_name, dataframe):
     Parameters
     ----------
     date_column_name : str
-        Specify the name of the date column from which to determine the weekday.
+        Specify the name of the date column.
     new_column_name : str
         Specify the name of the new column to be added to the data frame.
     dataframe : pyspark.sql.DataFrame
