@@ -61,6 +61,19 @@ def test_count_nulls(spark):
     assert_dataframe_equal(actual, expected)
 
 
+def test_daterange(spark):
+    df = spark.createDataFrame([Row(id=1), Row(id=3), Row(id=2), Row(id=2), Row(id=3)])
+    expected = spark.createDataFrame(
+        [Row(id=i, day=date(2023, 5, d)) for i in [1, 2, 3] for d in range(1, 8)]
+    )
+
+    actual = sparkit.daterange("id", "day", "2023-05-01", "2023-05-07", df)
+    assert_dataframe_equal(actual, expected)
+
+    actual = sparkit.daterange("id", "day", date(2023, 5, 1), date(2023, 5, 7), df)
+    assert_dataframe_equal(actual, expected)
+
+
 def test_freq(spark):
     # single column
     frequencies = {"a": 3, "b": 1, "c": 1, "g": 2, "h": 1}

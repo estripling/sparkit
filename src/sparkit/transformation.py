@@ -12,6 +12,7 @@ __all__ = (
     "add_prefix",
     "add_suffix",
     "count_nulls",
+    "daterange",
     "freq",
     "join",
     "peek",
@@ -145,6 +146,83 @@ def count_nulls(dataframe, subset=None):
     columns = subset or dataframe.columns
     return dataframe.agg(
         *[F.sum(F.isnull(c).cast(T.LongType())).alias(c) for c in columns]
+    )
+
+
+@toolz.curry
+def daterange(id_column_name, new_column_name, min_date, max_date, dataframe):
+    """Generate a date range for each distinct ID value.
+
+    Parameters
+    ----------
+    id_column_name : str
+        Specify the name of the ID column.
+    new_column_name : str
+        Specify the name of the new column to be added to the data frame.
+    min_date : str or datetime.date
+        Specify the inclusive lower endpoint of the date range.
+    max_date : str or datetime.date
+        Specify the inclusive upper endpoint of the date range.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+
+    Notes
+    -----
+    Function is curried.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame in long format with consecutive dates between
+        `min_date` and `max_date` for each distinct ID value.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame(
+    ...     [
+    ...         Row(id=1),
+    ...         Row(id=1),
+    ...         Row(id=3),
+    ...         Row(id=2),
+    ...         Row(id=2),
+    ...         Row(id=3),
+    ...     ]
+    ... )
+    >>> (
+    ...     sparkit.daterange("id", "day", "2023-05-01", "2023-05-03", df)
+    ...     .orderBy("id", "day")
+    ...     .show()
+    ... )
+    +---+----------+
+    | id|       day|
+    +---+----------+
+    |  1|2023-05-01|
+    |  1|2023-05-02|
+    |  1|2023-05-03|
+    |  2|2023-05-01|
+    |  2|2023-05-02|
+    |  2|2023-05-03|
+    |  3|2023-05-01|
+    |  3|2023-05-02|
+    |  3|2023-05-03|
+    +---+----------+
+    <BLANKLINE>
+    """
+    return (
+        dataframe.select(id_column_name)
+        .distinct()
+        .withColumn("min_date", F.to_date(F.lit(min_date), "yyyy-MM-dd"))
+        .withColumn("max_date", F.to_date(F.lit(max_date), "yyyy-MM-dd"))
+        .select(
+            id_column_name,
+            F.expr("sequence(min_date, max_date, interval 1 day)").alias(
+                new_column_name
+            ),
+        )
+        .withColumn(new_column_name, F.explode(new_column_name))
     )
 
 
