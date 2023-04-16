@@ -478,7 +478,7 @@ def with_endofweek_date(
         Specify the name of the date column from which to determine the date that
         corresponds to the end of the week.
     new_column_name : str
-        Specify the name of the new column that is added to the data frame.
+        Specify the name of the new column to be added to the data frame.
     dataframe : pyspark.sql.DataFrame
         Input data frame.
     last_weekday_name : str, default="Sun"
@@ -596,7 +596,7 @@ def with_startofweek_date(
         Specify the name of the date column from which to determine the date that
         corresponds to the start of the week.
     new_column_name : str
-        Specify the name of the new column that is added to the data frame.
+        Specify the name of the new column to be added to the data frame.
     dataframe : pyspark.sql.DataFrame
         Input data frame.
     last_weekday_name : str, default="Sun"
@@ -673,7 +673,7 @@ def with_weekday_name(date_column_name, new_column_name, dataframe):
     date_column_name : str
         Specify the name of the date column from which to determine the weekday.
     new_column_name : str
-        Specify the name of the new weekday column.
+        Specify the name of the new column to be added to the data frame.
     dataframe : pyspark.sql.DataFrame
         Input data frame.
 
