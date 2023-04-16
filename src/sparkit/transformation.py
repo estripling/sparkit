@@ -16,6 +16,7 @@ __all__ = (
     "join",
     "peek",
     "union",
+    "with_endofweek_date",
     "with_index",
     "with_weekday_name",
 )
@@ -381,6 +382,89 @@ def union(*dataframes):
     <BLANKLINE>
     """
     return functools.reduce(DataFrame.unionByName, bumbag.flatten(dataframes))
+
+
+@toolz.curry
+def with_endofweek_date(
+    date_column_name,
+    new_column_name,
+    dataframe,
+    last_weekday_name="Sun",
+):
+    """Add column with the end of the week date.
+
+    Parameters
+    ----------
+    date_column_name : str
+        Specify the name of the date column from which to determine the date that
+        corresponds to the end of the week.
+    new_column_name : str
+        Specify the name of the new column that is added to the data frame.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+    last_weekday_name : str, default="Sun"
+        Specify the name of the last weekday.
+
+    Notes
+    -----
+    Function is curried.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with the end of week date column.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame(
+    ...     [
+    ...         Row(day="2023-05-01"),
+    ...         Row(day=None),
+    ...         Row(day="2023-05-03"),
+    ...         Row(day="2023-05-08"),
+    ...         Row(day="2023-05-21"),
+    ...     ],
+    ... )
+    >>> sparkit.with_endofweek_date("day", "endofweek", df).show()
+    +----------+----------+
+    |       day| endofweek|
+    +----------+----------+
+    |2023-05-01|2023-05-07|
+    |      null|      null|
+    |2023-05-03|2023-05-07|
+    |2023-05-08|2023-05-14|
+    |2023-05-21|2023-05-21|
+    +----------+----------+
+    <BLANKLINE>
+
+    >>> sparkit.with_endofweek_date(
+    ...     "day", "endofweek", df, last_weekday_name="Sat"
+    ... ).show()
+    +----------+----------+
+    |       day| endofweek|
+    +----------+----------+
+    |2023-05-01|2023-05-06|
+    |      null|      null|
+    |2023-05-03|2023-05-06|
+    |2023-05-08|2023-05-13|
+    |2023-05-21|2023-05-27|
+    +----------+----------+
+    <BLANKLINE>
+    """
+    tmp_column = "weekday"
+    return (
+        dataframe.transform(with_weekday_name(date_column_name, tmp_column))
+        .withColumn(
+            new_column_name,
+            F.when(F.col(tmp_column).isNull(), None)
+            .when(F.col(tmp_column) == last_weekday_name, F.col(date_column_name))
+            .otherwise(F.next_day(F.col(date_column_name), last_weekday_name)),
+        )
+        .drop(tmp_column)
+    )
 
 
 def with_index(dataframe):

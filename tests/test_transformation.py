@@ -1,3 +1,5 @@
+from datetime import date
+
 import pyspark.sql.functions as F
 import pyspark.sql.types as T
 from pyspark.sql import Row
@@ -142,6 +144,92 @@ def test_union(spark):
 
     actual = sparkit.union(df1, df2, df3)
     expected = df1.unionByName(df2).unionByName(df3)
+    assert_dataframe_equal(actual, expected)
+
+
+def test_with_endofweek_date(spark):
+    df = spark.createDataFrame(
+        [
+            Row(day="2023-04-30"),
+            Row(day="2023-05-01"),
+            Row(day="2023-05-02"),
+            Row(day="2023-05-03"),
+            Row(day="2023-05-04"),
+            Row(day="2023-05-05"),
+            Row(day="2023-05-06"),
+            Row(day="2023-05-07"),
+            Row(day="2023-05-08"),
+            Row(day=None),
+        ]
+    )
+    actual = sparkit.with_endofweek_date("day", "endofweek", df)
+    expected = spark.createDataFrame(
+        [
+            Row(day="2023-04-30", endofweek="2023-04-30"),
+            Row(day="2023-05-01", endofweek="2023-05-07"),
+            Row(day="2023-05-02", endofweek="2023-05-07"),
+            Row(day="2023-05-03", endofweek="2023-05-07"),
+            Row(day="2023-05-04", endofweek="2023-05-07"),
+            Row(day="2023-05-05", endofweek="2023-05-07"),
+            Row(day="2023-05-06", endofweek="2023-05-07"),
+            Row(day="2023-05-07", endofweek="2023-05-07"),
+            Row(day="2023-05-08", endofweek="2023-05-14"),
+            Row(day=None, endofweek=None),
+        ]
+    )
+    assert_dataframe_equal(actual, expected)
+
+    actual = sparkit.with_endofweek_date(
+        "day",
+        "endofweek",
+        df,
+        last_weekday_name="Sat",
+    )
+    expected = spark.createDataFrame(
+        [
+            Row(day="2023-04-30", endofweek="2023-05-06"),
+            Row(day="2023-05-01", endofweek="2023-05-06"),
+            Row(day="2023-05-02", endofweek="2023-05-06"),
+            Row(day="2023-05-03", endofweek="2023-05-06"),
+            Row(day="2023-05-04", endofweek="2023-05-06"),
+            Row(day="2023-05-05", endofweek="2023-05-06"),
+            Row(day="2023-05-06", endofweek="2023-05-06"),
+            Row(day="2023-05-07", endofweek="2023-05-13"),
+            Row(day="2023-05-08", endofweek="2023-05-13"),
+            Row(day=None, endofweek=None),
+        ]
+    )
+    assert_dataframe_equal(actual, expected)
+
+    df = spark.createDataFrame(
+        [
+            Row(day=date(2023, 4, 30)),
+            Row(day=date(2023, 5, 1)),
+            Row(day=date(2023, 5, 2)),
+            Row(day=date(2023, 5, 3)),
+            Row(day=date(2023, 5, 4)),
+            Row(day=date(2023, 5, 5)),
+            Row(day=date(2023, 5, 6)),
+            Row(day=date(2023, 5, 7)),
+            Row(day=date(2023, 5, 8)),
+            Row(day=None),
+        ]
+    )
+    actual = sparkit.with_endofweek_date("day", "endofweek", df)
+    expected = spark.createDataFrame(
+        [
+            Row(day=date(2023, 4, 30), endofweek=date(2023, 4, 30)),
+            Row(day=date(2023, 5, 1), endofweek=date(2023, 5, 7)),
+            Row(day=date(2023, 5, 2), endofweek=date(2023, 5, 7)),
+            Row(day=date(2023, 5, 3), endofweek=date(2023, 5, 7)),
+            Row(day=date(2023, 5, 4), endofweek=date(2023, 5, 7)),
+            Row(day=date(2023, 5, 5), endofweek=date(2023, 5, 7)),
+            Row(day=date(2023, 5, 6), endofweek=date(2023, 5, 7)),
+            Row(day=date(2023, 5, 7), endofweek=date(2023, 5, 7)),
+            Row(day=date(2023, 5, 8), endofweek=date(2023, 5, 14)),
+            Row(day=None, endofweek=None),
+        ]
+    )
     assert_dataframe_equal(actual, expected)
 
 
