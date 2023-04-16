@@ -12,11 +12,15 @@ __all__ = (
     "add_prefix",
     "add_suffix",
     "count_nulls",
+    "daterange",
     "freq",
     "join",
     "peek",
     "union",
+    "with_endofweek_date",
     "with_index",
+    "with_startofweek_date",
+    "with_weekday_name",
 )
 
 
@@ -35,7 +39,7 @@ def add_prefix(dataframe, prefix, subset=None):
 
     Notes
     -----
-    - Function is curried.
+    Function is curried.
 
     Returns
     -------
@@ -77,7 +81,7 @@ def add_suffix(dataframe, suffix, subset=None):
 
     Notes
     -----
-    - Function is curried.
+    Function is curried.
 
     Returns
     -------
@@ -146,6 +150,83 @@ def count_nulls(dataframe, subset=None):
 
 
 @toolz.curry
+def daterange(id_column_name, new_column_name, min_date, max_date, dataframe):
+    """Generate a date range for each distinct ID value.
+
+    Parameters
+    ----------
+    id_column_name : str
+        Specify the name of the ID column.
+    new_column_name : str
+        Specify the name of the new column to be added to the data frame.
+    min_date : str or datetime.date
+        Specify the inclusive lower endpoint of the date range.
+    max_date : str or datetime.date
+        Specify the inclusive upper endpoint of the date range.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+
+    Notes
+    -----
+    Function is curried.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame in long format with consecutive dates between
+        `min_date` and `max_date` for each distinct ID value.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame(
+    ...     [
+    ...         Row(id=1),
+    ...         Row(id=1),
+    ...         Row(id=3),
+    ...         Row(id=2),
+    ...         Row(id=2),
+    ...         Row(id=3),
+    ...     ]
+    ... )
+    >>> (
+    ...     sparkit.daterange("id", "day", "2023-05-01", "2023-05-03", df)
+    ...     .orderBy("id", "day")
+    ...     .show()
+    ... )
+    +---+----------+
+    | id|       day|
+    +---+----------+
+    |  1|2023-05-01|
+    |  1|2023-05-02|
+    |  1|2023-05-03|
+    |  2|2023-05-01|
+    |  2|2023-05-02|
+    |  2|2023-05-03|
+    |  3|2023-05-01|
+    |  3|2023-05-02|
+    |  3|2023-05-03|
+    +---+----------+
+    <BLANKLINE>
+    """
+    return (
+        dataframe.select(id_column_name)
+        .distinct()
+        .withColumn("min_date", F.to_date(F.lit(min_date), "yyyy-MM-dd"))
+        .withColumn("max_date", F.to_date(F.lit(max_date), "yyyy-MM-dd"))
+        .select(
+            id_column_name,
+            F.expr("sequence(min_date, max_date, interval 1 day)").alias(
+                new_column_name
+            ),
+        )
+        .withColumn(new_column_name, F.explode(new_column_name))
+    )
+
+
+@toolz.curry
 def freq(dataframe, columns):
     """Compute value frequencies.
 
@@ -164,7 +245,7 @@ def freq(dataframe, columns):
 
     Notes
     -----
-    - Function is curried.
+    Function is curried.
 
     Returns
     -------
@@ -273,7 +354,7 @@ def peek(dataframe, n=6, cache=False, schema=False, index=False):
 
     Notes
     -----
-    - Function is curried.
+    Function is curried.
 
     Returns
     -------
@@ -382,6 +463,88 @@ def union(*dataframes):
     return functools.reduce(DataFrame.unionByName, bumbag.flatten(dataframes))
 
 
+@toolz.curry
+def with_endofweek_date(
+    date_column_name,
+    new_column_name,
+    dataframe,
+    last_weekday_name="Sun",
+):
+    """Add column with the end of the week date.
+
+    Parameters
+    ----------
+    date_column_name : str
+        Specify the name of the date column.
+    new_column_name : str
+        Specify the name of the new column to be added to the data frame.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+    last_weekday_name : str, default="Sun"
+        Specify the name of the last weekday.
+
+    Notes
+    -----
+    Function is curried.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with the end of week date column.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame(
+    ...     [
+    ...         Row(day="2023-05-01"),
+    ...         Row(day=None),
+    ...         Row(day="2023-05-03"),
+    ...         Row(day="2023-05-08"),
+    ...         Row(day="2023-05-21"),
+    ...     ],
+    ... )
+    >>> sparkit.with_endofweek_date("day", "endofweek", df).show()
+    +----------+----------+
+    |       day| endofweek|
+    +----------+----------+
+    |2023-05-01|2023-05-07|
+    |      null|      null|
+    |2023-05-03|2023-05-07|
+    |2023-05-08|2023-05-14|
+    |2023-05-21|2023-05-21|
+    +----------+----------+
+    <BLANKLINE>
+
+    >>> sparkit.with_endofweek_date(
+    ...     "day", "endofweek", df, last_weekday_name="Sat"
+    ... ).show()
+    +----------+----------+
+    |       day| endofweek|
+    +----------+----------+
+    |2023-05-01|2023-05-06|
+    |      null|      null|
+    |2023-05-03|2023-05-06|
+    |2023-05-08|2023-05-13|
+    |2023-05-21|2023-05-27|
+    +----------+----------+
+    <BLANKLINE>
+    """
+    tmp_column = "weekday"
+    return (
+        dataframe.transform(with_weekday_name(date_column_name, tmp_column))
+        .withColumn(
+            new_column_name,
+            F.when(F.col(tmp_column).isNull(), None)
+            .when(F.col(tmp_column) == last_weekday_name, F.col(date_column_name))
+            .otherwise(F.next_day(F.col(date_column_name), last_weekday_name)),
+        )
+        .drop(tmp_column)
+    )
+
+
 def with_index(dataframe):
     """Add an index column.
 
@@ -415,3 +578,142 @@ def with_index(dataframe):
     columns = dataframe.columns
     win = Window.partitionBy(F.lit(1)).orderBy(F.monotonically_increasing_id())
     return dataframe.withColumn("idx", F.row_number().over(win)).select("idx", *columns)
+
+
+@toolz.curry
+def with_startofweek_date(
+    date_column_name,
+    new_column_name,
+    dataframe,
+    last_weekday_name="Sun",
+):
+    """Add column with the start of the week date.
+
+    Parameters
+    ----------
+    date_column_name : str
+        Specify the name of the date column.
+    new_column_name : str
+        Specify the name of the new column to be added to the data frame.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+    last_weekday_name : str, default="Sun"
+        Specify the name of the last weekday.
+
+    Notes
+    -----
+    Function is curried.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with the start of week date column.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame(
+    ...     [
+    ...         Row(day="2023-05-01"),
+    ...         Row(day=None),
+    ...         Row(day="2023-05-03"),
+    ...         Row(day="2023-05-08"),
+    ...         Row(day="2023-05-21"),
+    ...     ],
+    ... )
+    >>> sparkit.with_startofweek_date("day", "startofweek", df).show()
+    +----------+-----------+
+    |       day|startofweek|
+    +----------+-----------+
+    |2023-05-01| 2023-05-01|
+    |      null|       null|
+    |2023-05-03| 2023-05-01|
+    |2023-05-08| 2023-05-08|
+    |2023-05-21| 2023-05-15|
+    +----------+-----------+
+    <BLANKLINE>
+
+    >>> sparkit.with_startofweek_date(
+    ...     "day", "startofweek", df, last_weekday_name="Sat"
+    ... ).show()
+    +----------+-----------+
+    |       day|startofweek|
+    +----------+-----------+
+    |2023-05-01| 2023-04-30|
+    |      null|       null|
+    |2023-05-03| 2023-04-30|
+    |2023-05-08| 2023-05-07|
+    |2023-05-21| 2023-05-21|
+    +----------+-----------+
+    <BLANKLINE>
+    """
+    tmp_column = "endofweek"
+    with_endofweek = with_endofweek_date(
+        date_column_name,
+        tmp_column,
+        last_weekday_name=last_weekday_name,
+    )
+    return (
+        dataframe.transform(with_endofweek)
+        .withColumn(new_column_name, F.date_sub(tmp_column, 6))
+        .drop(tmp_column)
+    )
+
+
+@toolz.curry
+def with_weekday_name(date_column_name, new_column_name, dataframe):
+    """Add column with the name of the weekday.
+
+    Parameters
+    ----------
+    date_column_name : str
+        Specify the name of the date column.
+    new_column_name : str
+        Specify the name of the new column to be added to the data frame.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+
+    Notes
+    -----
+    Function is curried.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with the weekday column.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame(
+    ...     [Row(day="2023-05-01"), Row(day=None), Row(day="2023-05-03")]
+    ... )
+    >>> sparkit.with_weekday_name("day", "weekday", df).show()
+    +----------+-------+
+    |       day|weekday|
+    +----------+-------+
+    |2023-05-01|    Mon|
+    |      null|   null|
+    |2023-05-03|    Wed|
+    +----------+-------+
+    <BLANKLINE>
+    """
+
+    def determine_weekday(date_column):
+        weekday_int = F.dayofweek(date_column)
+        return (
+            F.when(weekday_int == 1, "Sun")
+            .when(weekday_int == 2, "Mon")
+            .when(weekday_int == 3, "Tue")
+            .when(weekday_int == 4, "Wed")
+            .when(weekday_int == 5, "Thu")
+            .when(weekday_int == 6, "Fri")
+            .when(weekday_int == 7, "Sat")
+            .otherwise(None)
+        )
+
+    return dataframe.withColumn(new_column_name, determine_weekday(date_column_name))
