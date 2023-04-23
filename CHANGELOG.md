@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.0 (2023-04-23)
+### Feature
+* Add time related functions ([#13](https://github.com/estripling/sparkit/issues/13)) ([`5e710e2`](https://github.com/estripling/sparkit/commit/5e710e2ca082370fb262db736034f6aa8756992c))
+
+### Breaking
+* new function signatures and renamed function ([`937891b`](https://github.com/estripling/sparkit/commit/937891bb65bd603568c09d9f16c35d042a53b2f0))
+
+### Documentation
+* Refactor function signatures ([#14](https://github.com/estripling/sparkit/issues/14)) ([`937891b`](https://github.com/estripling/sparkit/commit/937891bb65bd603568c09d9f16c35d042a53b2f0))
+
 ## v0.3.0 (2023-03-20)
 ### Feature
 * Add with_index function ([#12](https://github.com/estripling/sparkit/issues/12)) ([`0f58112`](https://github.com/estripling/sparkit/commit/0f5811294568d12b7793c2452ae5ade411338b7b))
