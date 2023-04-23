@@ -238,10 +238,10 @@ def daterange(id_column_name, new_column_name, dataframe, /, *, min_date, max_da
 
 
 @toolz.curry
-def freq(dataframe, columns):
+def freq(columns, dataframe, /):
     """Compute value frequencies.
 
-    Given some columns, calculate for each distinct value:
+    Given a selection of columns, calculate for each distinct value:
      - the frequency (``frq``),
      - the cumulative frequency (``cml_frq``),
      - the relative frequency (``rel_frq``), and
@@ -249,10 +249,10 @@ def freq(dataframe, columns):
 
     Parameters
     ----------
+    columns : Iterable of str or pyspark.sql.Column
+        Specify the columns for which to compute the value frequency.
     dataframe : pyspark.sql.DataFrame
         Input data frame.
-    columns : list of str or pyspark.sql.Column
-        Specify the columns for which to compute the value frequency.
 
     Notes
     -----
@@ -261,7 +261,7 @@ def freq(dataframe, columns):
     Returns
     -------
     pyspark.sql.DataFrame
-        A new data frame with value frequencies for specified columns.
+        A new data frame with value frequencies of specified columns.
 
     Examples
     --------
@@ -280,7 +280,7 @@ def freq(dataframe, columns):
     ...         Row(x="a"),
     ...     ]
     ... )
-    >>> sparkit.freq(df, columns=["x"]).show()
+    >>> sparkit.freq(["x"], df).show()
     +---+---+-------+-------+-----------+
     |  x|frq|cml_frq|rel_frq|rel_cml_frq|
     +---+---+-------+-------+-----------+

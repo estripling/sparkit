@@ -116,11 +116,11 @@ def test_freq(spark):
     )
 
     for columns in ["x", ["x"]]:
-        actual = sparkit.freq(df, columns)
+        actual = sparkit.freq(columns, df)
         assert_dataframe_equal(actual, expected)
 
     # used as transformation function
-    actual = df.transform(sparkit.freq(columns=["x"]))
+    actual = df.transform(sparkit.freq(["x"]))
     assert_dataframe_equal(actual, expected)
 
     # multiple columns
@@ -136,10 +136,10 @@ def test_freq(spark):
             Row(x="a", y=2),
         ]
     )
-    actual = sparkit.freq(df, ["x"])  # check single column again
+    actual = sparkit.freq(["x"], df)  # check single column again
     assert_dataframe_equal(actual, expected)
 
-    actual = sparkit.freq(df, ["x", "y"])
+    actual = sparkit.freq(["x", "y"], df)
     expected = spark.createDataFrame(
         [
             Row(x="a", y=1, frq=2, cml_frq=2, rel_frq=0.25, rel_cml_frq=0.25),
