@@ -345,7 +345,7 @@ def join(*dataframes, on, how="inner"):
 
 
 @toolz.curry
-def peek(dataframe, n=6, cache=False, schema=False, index=False):
+def peek(dataframe, /, *, n=6, cache=False, schema=False, index=False):
     """Have a quick look at the data frame and return it.
 
     This function is handy when chaining data frame transformations.
