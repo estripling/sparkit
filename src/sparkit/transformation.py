@@ -598,6 +598,8 @@ def with_startofweek_date(
     date_column_name,
     new_column_name,
     dataframe,
+    /,
+    *,
     last_weekday_name="Sun",
 ):
     """Add column with the start of the week date.
@@ -620,7 +622,7 @@ def with_startofweek_date(
     Returns
     -------
     pyspark.sql.DataFrame
-        A new data frame with the start of week date column.
+        A new data frame with the start-of-week date column.
 
     Examples
     --------
