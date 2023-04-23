@@ -56,8 +56,18 @@ def test_count_nulls(spark):
         ]
     )
 
+    actual = sparkit.count_nulls(df)
+    expected = spark.createDataFrame([Row(x=0, y=2, z=3)])
+    assert_dataframe_equal(actual, expected)
+
+    actual = df.transform(sparkit.count_nulls)
+    assert_dataframe_equal(actual, expected)
+
     actual = sparkit.count_nulls(df, subset=["x", "z"])
     expected = spark.createDataFrame([Row(x=0, z=3)])
+    assert_dataframe_equal(actual, expected)
+
+    actual = df.transform(sparkit.count_nulls(subset=["x", "z"]))
     assert_dataframe_equal(actual, expected)
 
 

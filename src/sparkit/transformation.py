@@ -108,6 +108,7 @@ def add_suffix(suffix, dataframe, /, *, subset=None):
     return dataframe
 
 
+@toolz.curry
 def count_nulls(dataframe, /, *, subset=None):
     """Count null values in data frame.
 
@@ -117,6 +118,10 @@ def count_nulls(dataframe, /, *, subset=None):
         Input data frame.
     subset : Iterable of str, default=None
         Specify a column selection. If None, all columns are selected.
+
+    Notes
+    -----
+    Function is curried.
 
     Returns
     -------
