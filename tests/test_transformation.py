@@ -67,10 +67,24 @@ def test_daterange(spark):
         [Row(id=i, day=date(2023, 5, d)) for i in [1, 2, 3] for d in range(1, 8)]
     )
 
-    actual = sparkit.daterange("id", "day", "2023-05-01", "2023-05-07", df)
+    sparkit.daterange()
+    actual = sparkit.daterange(
+        "id",
+        "day",
+        df,
+        min_date="2023-05-01",
+        max_date="2023-05-07",
+    )
     assert_dataframe_equal(actual, expected)
 
-    actual = sparkit.daterange("id", "day", date(2023, 5, 1), date(2023, 5, 7), df)
+    actual = df.transform(
+        sparkit.daterange(
+            "id",
+            "day",
+            min_date=date(2023, 5, 1),
+            max_date=date(2023, 5, 7),
+        )
+    )
     assert_dataframe_equal(actual, expected)
 
 

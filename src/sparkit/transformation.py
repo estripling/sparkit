@@ -150,7 +150,7 @@ def count_nulls(dataframe, /, *, subset=None):
 
 
 @toolz.curry
-def daterange(id_column_name, new_column_name, min_date, max_date, dataframe):
+def daterange(id_column_name, new_column_name, dataframe, /, *, min_date, max_date):
     """Generate a date range for each distinct ID value.
 
     Parameters
@@ -159,12 +159,12 @@ def daterange(id_column_name, new_column_name, min_date, max_date, dataframe):
         Specify the name of the ID column.
     new_column_name : str
         Specify the name of the new column to be added to the data frame.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
     min_date : str or datetime.date
         Specify the inclusive lower endpoint of the date range.
     max_date : str or datetime.date
         Specify the inclusive upper endpoint of the date range.
-    dataframe : pyspark.sql.DataFrame
-        Input data frame.
 
     Notes
     -----
@@ -192,7 +192,13 @@ def daterange(id_column_name, new_column_name, min_date, max_date, dataframe):
     ...     ]
     ... )
     >>> (
-    ...     sparkit.daterange("id", "day", "2023-05-01", "2023-05-03", df)
+    ...     sparkit.daterange(
+    ...         "id",
+    ...         "day",
+    ...         df,
+    ...         min_date="2023-05-01",
+    ...         max_date="2023-05-03",
+    ...     )
     ...     .orderBy("id", "day")
     ...     .show()
     ... )
