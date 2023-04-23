@@ -17,8 +17,8 @@ __all__ = (
     "join",
     "peek",
     "union",
+    "with_consecutive_integers",
     "with_endofweek_date",
-    "with_index",
     "with_startofweek_date",
     "with_weekday_name",
 )
@@ -475,6 +475,47 @@ def union(*dataframes):
 
 
 @toolz.curry
+def with_consecutive_integers(new_column_name, dataframe, /):
+    """Add column with consecutive positive integers.
+
+    Parameters
+    ----------
+    new_column_name : str
+        Specify the name of the new column to be added to the data frame.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+
+    Notes
+    -----
+    Function is curried.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with a column of consecutive positive integers.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame([Row(x="a"), Row(x="b"), Row(x="c"), Row(x="d")])
+    >>> sparkit.with_consecutive_integers("idx", df).show()
+    +---+---+
+    |  x|idx|
+    +---+---+
+    |  a|  1|
+    |  b|  2|
+    |  c|  3|
+    |  d|  4|
+    +---+---+
+    <BLANKLINE>
+    """
+    win = Window.partitionBy(F.lit(1)).orderBy(F.monotonically_increasing_id())
+    return dataframe.withColumn(new_column_name, F.row_number().over(win))
+
+
+@toolz.curry
 def with_endofweek_date(
     date_column_name,
     new_column_name,
@@ -556,41 +597,6 @@ def with_endofweek_date(
         )
         .drop(tmp_column)
     )
-
-
-def with_index(dataframe):
-    """Add an index column.
-
-    Parameters
-    ----------
-    dataframe : pyspark.sql.DataFrame
-        Input data frame to index.
-
-    Returns
-    -------
-    pyspark.sql.DataFrame
-        A new data frame with the first column being a consecutive row index.
-
-    Examples
-    --------
-    >>> import sparkit
-    >>> from pyspark.sql import Row, SparkSession
-    >>> spark = SparkSession.builder.getOrCreate()
-    >>> df = spark.createDataFrame([Row(x="a"), Row(x="b"), Row(x="c"), Row(x="d")])
-    >>> sparkit.with_index(df).show()
-    +---+---+
-    |idx|  x|
-    +---+---+
-    |  1|  a|
-    |  2|  b|
-    |  3|  c|
-    |  4|  d|
-    +---+---+
-    <BLANKLINE>
-    """
-    columns = dataframe.columns
-    win = Window.partitionBy(F.lit(1)).orderBy(F.monotonically_increasing_id())
-    return dataframe.withColumn("idx", F.row_number().over(win)).select("idx", *columns)
 
 
 @toolz.curry

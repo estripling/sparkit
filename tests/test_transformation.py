@@ -184,6 +184,46 @@ def test_union(spark):
     assert_dataframe_equal(actual, expected)
 
 
+def test_with_consecutive_integers(spark):
+    df = spark.createDataFrame(
+        [
+            Row(x="a"),
+            Row(x="b"),
+            Row(x="c"),
+            Row(x="d"),
+            Row(x="e"),
+            Row(x="f"),
+            Row(x="g"),
+            Row(x="h"),
+        ],
+        schema=T.StructType([T.StructField("x", T.StringType(), True)]),
+    )
+
+    actual = sparkit.with_consecutive_integers("idx", df)
+    expected = spark.createDataFrame(
+        [
+            Row(x="a", idx=1),
+            Row(x="b", idx=2),
+            Row(x="c", idx=3),
+            Row(x="d", idx=4),
+            Row(x="e", idx=5),
+            Row(x="f", idx=6),
+            Row(x="g", idx=7),
+            Row(x="h", idx=8),
+        ],
+        schema=T.StructType(
+            [
+                T.StructField("x", T.StringType(), True),
+                T.StructField("idx", T.IntegerType(), True),
+            ]
+        ),
+    )
+    assert_dataframe_equal(actual, expected)
+
+    actual = df.transform(sparkit.with_consecutive_integers("idx"))
+    assert_dataframe_equal(actual, expected)
+
+
 def test_with_endofweek_date(spark):
     df = spark.createDataFrame(
         [
@@ -266,43 +306,6 @@ def test_with_endofweek_date(spark):
             Row(day=date(2023, 5, 8), endofweek=date(2023, 5, 14)),
             Row(day=None, endofweek=None),
         ]
-    )
-    assert_dataframe_equal(actual, expected)
-
-
-def test_with_index(spark):
-    df = spark.createDataFrame(
-        [
-            Row(x="a"),
-            Row(x="b"),
-            Row(x="c"),
-            Row(x="d"),
-            Row(x="e"),
-            Row(x="f"),
-            Row(x="g"),
-            Row(x="h"),
-        ],
-        schema=T.StructType([T.StructField("x", T.StringType(), True)]),
-    )
-
-    actual = sparkit.with_index(df)
-    expected = spark.createDataFrame(
-        [
-            Row(idx=1, x="a"),
-            Row(idx=2, x="b"),
-            Row(idx=3, x="c"),
-            Row(idx=4, x="d"),
-            Row(idx=5, x="e"),
-            Row(idx=6, x="f"),
-            Row(idx=7, x="g"),
-            Row(idx=8, x="h"),
-        ],
-        schema=T.StructType(
-            [
-                T.StructField("idx", T.IntegerType(), True),
-                T.StructField("x", T.StringType(), True),
-            ]
-        ),
     )
     assert_dataframe_equal(actual, expected)
 
