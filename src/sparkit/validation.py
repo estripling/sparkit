@@ -12,7 +12,7 @@ __all__ = (
 )
 
 
-def check_dataframe_equal(lft_df, rgt_df):
+def check_dataframe_equal(lft_df, rgt_df, /):
     """Validate that the left and right data frames are equal.
 
     Function performs:
@@ -95,7 +95,7 @@ def check_dataframe_equal(lft_df, rgt_df):
     check_row_equal(lft_df, rgt_df)
 
 
-def check_row_count_equal(lft_df, rgt_df):
+def check_row_count_equal(lft_df, rgt_df, /):
     """Validate that the row counts of the left and right data frames are equal.
 
     Parameters
@@ -148,7 +148,7 @@ def check_row_count_equal(lft_df, rgt_df):
         raise exception.RowCountMismatchError(lft_row_count, rgt_row_count)
 
 
-def check_row_equal(lft_df, rgt_df):
+def check_row_equal(lft_df, rgt_df, /):
     """Validate that the rows of the left and right data frames are equal.
 
     Parameters
@@ -208,7 +208,7 @@ def check_row_equal(lft_df, rgt_df):
         )
 
 
-def check_schema_equal(lft_df, rgt_df):
+def check_schema_equal(lft_df, rgt_df, /):
     """Validate that the schemas of the left and right data frames are equal.
 
     Parameters
@@ -262,7 +262,7 @@ def check_schema_equal(lft_df, rgt_df):
         raise exception.SchemaMismatchError(lft_schema, rgt_schema)
 
 
-def is_dataframe_equal(lft_df, rgt_df):
+def is_dataframe_equal(lft_df, rgt_df, /):
     """Evaluate if the left and right data frames are equal.
 
     Function performs:
@@ -322,7 +322,7 @@ def is_dataframe_equal(lft_df, rgt_df):
         return False
 
 
-def is_row_count_equal(lft_df, rgt_df):
+def is_row_count_equal(lft_df, rgt_df, /):
     """Evaluate if the row counts of the left and right data frames are equal.
 
     Parameters
@@ -363,7 +363,7 @@ def is_row_count_equal(lft_df, rgt_df):
         return False
 
 
-def is_row_equal(lft_df, rgt_df):
+def is_row_equal(lft_df, rgt_df, /):
     """Evaluate if the rows of the left and right data frames are equal.
 
     Parameters
@@ -404,7 +404,7 @@ def is_row_equal(lft_df, rgt_df):
         return False
 
 
-def is_schema_equal(lft_df, rgt_df):
+def is_schema_equal(lft_df, rgt_df, /):
     """Evaluate if the schemas of the left and right data frames are equal.
 
     Parameters

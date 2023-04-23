@@ -12,17 +12,17 @@ def test_add_prefix(spark):
     df = spark.createDataFrame([Row(x=1, y=2)])
 
     # all columns
-    actual = sparkit.add_prefix(df, "prefix_")
+    actual = sparkit.add_prefix("prefix_", df)
     expected = spark.createDataFrame([Row(prefix_x=1, prefix_y=2)])
     assert_dataframe_equal(actual, expected)
 
     # with column selection
-    actual = sparkit.add_prefix(df, "prefix_", ["x"])
+    actual = sparkit.add_prefix("prefix_", df, subset=["x"])
     expected = spark.createDataFrame([Row(prefix_x=1, y=2)])
     assert_dataframe_equal(actual, expected)
 
     # used as transformation function
-    actual = df.transform(sparkit.add_prefix(prefix="prefix_", subset=["x"]))
+    actual = df.transform(sparkit.add_prefix("prefix_", subset=["x"]))
     expected = spark.createDataFrame([Row(prefix_x=1, y=2)])
     assert_dataframe_equal(actual, expected)
 
@@ -31,17 +31,17 @@ def test_add_suffix(spark):
     df = spark.createDataFrame([Row(x=1, y=2)])
 
     # all columns
-    actual = sparkit.add_suffix(df, "_suffix")
+    actual = sparkit.add_suffix("_suffix", df)
     expected = spark.createDataFrame([Row(x_suffix=1, y_suffix=2)])
     assert_dataframe_equal(actual, expected)
 
     # with column selection
-    actual = sparkit.add_suffix(df, "_suffix", ["x"])
+    actual = sparkit.add_suffix("_suffix", df, subset=["x"])
     expected = spark.createDataFrame([Row(x_suffix=1, y=2)])
     assert_dataframe_equal(actual, expected)
 
     # used as transformation function
-    actual = df.transform(sparkit.add_suffix(suffix="_suffix", subset=["x"]))
+    actual = df.transform(sparkit.add_suffix("_suffix", subset=["x"]))
     expected = spark.createDataFrame([Row(x_suffix=1, y=2)])
     assert_dataframe_equal(actual, expected)
 
@@ -56,8 +56,18 @@ def test_count_nulls(spark):
         ]
     )
 
+    actual = sparkit.count_nulls(df)
+    expected = spark.createDataFrame([Row(x=0, y=2, z=3)])
+    assert_dataframe_equal(actual, expected)
+
+    actual = df.transform(sparkit.count_nulls)
+    assert_dataframe_equal(actual, expected)
+
     actual = sparkit.count_nulls(df, subset=["x", "z"])
     expected = spark.createDataFrame([Row(x=0, z=3)])
+    assert_dataframe_equal(actual, expected)
+
+    actual = df.transform(sparkit.count_nulls(subset=["x", "z"]))
     assert_dataframe_equal(actual, expected)
 
 
@@ -67,10 +77,24 @@ def test_daterange(spark):
         [Row(id=i, day=date(2023, 5, d)) for i in [1, 2, 3] for d in range(1, 8)]
     )
 
-    actual = sparkit.daterange("id", "day", "2023-05-01", "2023-05-07", df)
+    sparkit.daterange()
+    actual = sparkit.daterange(
+        "id",
+        "day",
+        df,
+        min_date="2023-05-01",
+        max_date="2023-05-07",
+    )
     assert_dataframe_equal(actual, expected)
 
-    actual = sparkit.daterange("id", "day", date(2023, 5, 1), date(2023, 5, 7), df)
+    actual = df.transform(
+        sparkit.daterange(
+            "id",
+            "day",
+            min_date=date(2023, 5, 1),
+            max_date=date(2023, 5, 7),
+        )
+    )
     assert_dataframe_equal(actual, expected)
 
 
@@ -92,11 +116,11 @@ def test_freq(spark):
     )
 
     for columns in ["x", ["x"]]:
-        actual = sparkit.freq(df, columns)
+        actual = sparkit.freq(columns, df)
         assert_dataframe_equal(actual, expected)
 
     # used as transformation function
-    actual = df.transform(sparkit.freq(columns=["x"]))
+    actual = df.transform(sparkit.freq(["x"]))
     assert_dataframe_equal(actual, expected)
 
     # multiple columns
@@ -112,10 +136,10 @@ def test_freq(spark):
             Row(x="a", y=2),
         ]
     )
-    actual = sparkit.freq(df, ["x"])  # check single column again
+    actual = sparkit.freq(["x"], df)  # check single column again
     assert_dataframe_equal(actual, expected)
 
-    actual = sparkit.freq(df, ["x", "y"])
+    actual = sparkit.freq(["x", "y"], df)
     expected = spark.createDataFrame(
         [
             Row(x="a", y=1, frq=2, cml_frq=2, rel_frq=0.25, rel_cml_frq=0.25),
@@ -157,6 +181,46 @@ def test_union(spark):
 
     actual = sparkit.union(df1, df2, df3)
     expected = df1.unionByName(df2).unionByName(df3)
+    assert_dataframe_equal(actual, expected)
+
+
+def test_with_consecutive_integers(spark):
+    df = spark.createDataFrame(
+        [
+            Row(x="a"),
+            Row(x="b"),
+            Row(x="c"),
+            Row(x="d"),
+            Row(x="e"),
+            Row(x="f"),
+            Row(x="g"),
+            Row(x="h"),
+        ],
+        schema=T.StructType([T.StructField("x", T.StringType(), True)]),
+    )
+
+    actual = sparkit.with_consecutive_integers("idx", df)
+    expected = spark.createDataFrame(
+        [
+            Row(x="a", idx=1),
+            Row(x="b", idx=2),
+            Row(x="c", idx=3),
+            Row(x="d", idx=4),
+            Row(x="e", idx=5),
+            Row(x="f", idx=6),
+            Row(x="g", idx=7),
+            Row(x="h", idx=8),
+        ],
+        schema=T.StructType(
+            [
+                T.StructField("x", T.StringType(), True),
+                T.StructField("idx", T.IntegerType(), True),
+            ]
+        ),
+    )
+    assert_dataframe_equal(actual, expected)
+
+    actual = df.transform(sparkit.with_consecutive_integers("idx"))
     assert_dataframe_equal(actual, expected)
 
 
@@ -242,43 +306,6 @@ def test_with_endofweek_date(spark):
             Row(day=date(2023, 5, 8), endofweek=date(2023, 5, 14)),
             Row(day=None, endofweek=None),
         ]
-    )
-    assert_dataframe_equal(actual, expected)
-
-
-def test_with_index(spark):
-    df = spark.createDataFrame(
-        [
-            Row(x="a"),
-            Row(x="b"),
-            Row(x="c"),
-            Row(x="d"),
-            Row(x="e"),
-            Row(x="f"),
-            Row(x="g"),
-            Row(x="h"),
-        ],
-        schema=T.StructType([T.StructField("x", T.StringType(), True)]),
-    )
-
-    actual = sparkit.with_index(df)
-    expected = spark.createDataFrame(
-        [
-            Row(idx=1, x="a"),
-            Row(idx=2, x="b"),
-            Row(idx=3, x="c"),
-            Row(idx=4, x="d"),
-            Row(idx=5, x="e"),
-            Row(idx=6, x="f"),
-            Row(idx=7, x="g"),
-            Row(idx=8, x="h"),
-        ],
-        schema=T.StructType(
-            [
-                T.StructField("idx", T.IntegerType(), True),
-                T.StructField("x", T.StringType(), True),
-            ]
-        ),
     )
     assert_dataframe_equal(actual, expected)
 

@@ -17,23 +17,23 @@ __all__ = (
     "join",
     "peek",
     "union",
+    "with_consecutive_integers",
     "with_endofweek_date",
-    "with_index",
     "with_startofweek_date",
     "with_weekday_name",
 )
 
 
 @toolz.curry
-def add_prefix(dataframe, prefix, subset=None):
+def add_prefix(prefix, dataframe, /, *, subset=None):
     """Add prefix to column names.
 
     Parameters
     ----------
-    dataframe : pyspark.sql.DataFrame
-        The data frame for which the column names are to be changed.
     prefix : str
-        The string to add before a column name.
+        Specify the prefix string.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
     subset : Iterable of str, default=None
         Specify a column selection. If None, all columns are selected.
 
@@ -52,7 +52,7 @@ def add_prefix(dataframe, prefix, subset=None):
     >>> from pyspark.sql import Row, SparkSession
     >>> spark = SparkSession.builder.getOrCreate()
     >>> df = spark.createDataFrame([Row(x=1, y=2)])
-    >>> sparkit.add_prefix(df, "prefix_").show()
+    >>> sparkit.add_prefix("prefix_", df).show()
     +--------+--------+
     |prefix_x|prefix_y|
     +--------+--------+
@@ -67,15 +67,15 @@ def add_prefix(dataframe, prefix, subset=None):
 
 
 @toolz.curry
-def add_suffix(dataframe, suffix, subset=None):
+def add_suffix(suffix, dataframe, /, *, subset=None):
     """Add suffix to column names.
 
     Parameters
     ----------
-    dataframe : pyspark.sql.DataFrame
-        The data frame for which the column names are to be changed.
     suffix : str
-        The string to add after a column name.
+        Specify the suffix string.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
     subset : Iterable of str, default=None
         Specify a column selection. If None, all columns are selected.
 
@@ -94,7 +94,7 @@ def add_suffix(dataframe, suffix, subset=None):
     >>> from pyspark.sql import Row, SparkSession
     >>> spark = SparkSession.builder.getOrCreate()
     >>> df = spark.createDataFrame([Row(x=1, y=2)])
-    >>> sparkit.add_suffix(df, "_suffix").show()
+    >>> sparkit.add_suffix("_suffix", df).show()
     +--------+--------+
     |x_suffix|y_suffix|
     +--------+--------+
@@ -108,20 +108,25 @@ def add_suffix(dataframe, suffix, subset=None):
     return dataframe
 
 
-def count_nulls(dataframe, subset=None):
+@toolz.curry
+def count_nulls(dataframe, /, *, subset=None):
     """Count null values in data frame.
 
     Parameters
     ----------
     dataframe : pyspark.sql.DataFrame
-        Input data frame to count null values.
+        Input data frame.
     subset : Iterable of str, default=None
         Specify a column selection. If None, all columns are selected.
+
+    Notes
+    -----
+    Function is curried.
 
     Returns
     -------
     pyspark.sql.DataFrame
-        A new data frame with null values.
+        A new data frame with null value counts per column.
 
     Examples
     --------
@@ -150,7 +155,7 @@ def count_nulls(dataframe, subset=None):
 
 
 @toolz.curry
-def daterange(id_column_name, new_column_name, min_date, max_date, dataframe):
+def daterange(id_column_name, new_column_name, dataframe, /, *, min_date, max_date):
     """Generate a date range for each distinct ID value.
 
     Parameters
@@ -159,12 +164,12 @@ def daterange(id_column_name, new_column_name, min_date, max_date, dataframe):
         Specify the name of the ID column.
     new_column_name : str
         Specify the name of the new column to be added to the data frame.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
     min_date : str or datetime.date
         Specify the inclusive lower endpoint of the date range.
     max_date : str or datetime.date
         Specify the inclusive upper endpoint of the date range.
-    dataframe : pyspark.sql.DataFrame
-        Input data frame.
 
     Notes
     -----
@@ -192,7 +197,13 @@ def daterange(id_column_name, new_column_name, min_date, max_date, dataframe):
     ...     ]
     ... )
     >>> (
-    ...     sparkit.daterange("id", "day", "2023-05-01", "2023-05-03", df)
+    ...     sparkit.daterange(
+    ...         "id",
+    ...         "day",
+    ...         df,
+    ...         min_date="2023-05-01",
+    ...         max_date="2023-05-03",
+    ...     )
     ...     .orderBy("id", "day")
     ...     .show()
     ... )
@@ -227,10 +238,10 @@ def daterange(id_column_name, new_column_name, min_date, max_date, dataframe):
 
 
 @toolz.curry
-def freq(dataframe, columns):
+def freq(columns, dataframe, /):
     """Compute value frequencies.
 
-    Given some columns, calculate for each distinct value:
+    Given a selection of columns, calculate for each distinct value:
      - the frequency (``frq``),
      - the cumulative frequency (``cml_frq``),
      - the relative frequency (``rel_frq``), and
@@ -238,10 +249,10 @@ def freq(dataframe, columns):
 
     Parameters
     ----------
+    columns : Iterable of str or pyspark.sql.Column
+        Specify the columns for which to compute the value frequency.
     dataframe : pyspark.sql.DataFrame
         Input data frame.
-    columns : list of str or pyspark.sql.Column
-        Specify the columns for which to compute the value frequency.
 
     Notes
     -----
@@ -250,7 +261,7 @@ def freq(dataframe, columns):
     Returns
     -------
     pyspark.sql.DataFrame
-        A new data frame with value frequencies for specified columns.
+        A new data frame with value frequencies of specified columns.
 
     Examples
     --------
@@ -269,7 +280,7 @@ def freq(dataframe, columns):
     ...         Row(x="a"),
     ...     ]
     ... )
-    >>> sparkit.freq(df, columns=["x"]).show()
+    >>> sparkit.freq(["x"], df).show()
     +---+---+-------+-------+-----------+
     |  x|frq|cml_frq|rel_frq|rel_cml_frq|
     +---+---+-------+-------+-----------+
@@ -334,7 +345,7 @@ def join(*dataframes, on, how="inner"):
 
 
 @toolz.curry
-def peek(dataframe, n=6, cache=False, schema=False, index=False):
+def peek(dataframe, /, *, n=6, cache=False, schema=False, index=False):
     """Have a quick look at the data frame and return it.
 
     This function is handy when chaining data frame transformations.
@@ -464,10 +475,53 @@ def union(*dataframes):
 
 
 @toolz.curry
+def with_consecutive_integers(new_column_name, dataframe, /):
+    """Add column with consecutive positive integers.
+
+    Parameters
+    ----------
+    new_column_name : str
+        Specify the name of the new column to be added to the data frame.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
+
+    Notes
+    -----
+    Function is curried.
+
+    Returns
+    -------
+    pyspark.sql.DataFrame
+        A new data frame with a column of consecutive positive integers.
+
+    Examples
+    --------
+    >>> import sparkit
+    >>> from pyspark.sql import Row, SparkSession
+    >>> spark = SparkSession.builder.getOrCreate()
+    >>> df = spark.createDataFrame([Row(x="a"), Row(x="b"), Row(x="c"), Row(x="d")])
+    >>> sparkit.with_consecutive_integers("idx", df).show()
+    +---+---+
+    |  x|idx|
+    +---+---+
+    |  a|  1|
+    |  b|  2|
+    |  c|  3|
+    |  d|  4|
+    +---+---+
+    <BLANKLINE>
+    """
+    win = Window.partitionBy(F.lit(1)).orderBy(F.monotonically_increasing_id())
+    return dataframe.withColumn(new_column_name, F.row_number().over(win))
+
+
+@toolz.curry
 def with_endofweek_date(
     date_column_name,
     new_column_name,
     dataframe,
+    /,
+    *,
     last_weekday_name="Sun",
 ):
     """Add column with the end of the week date.
@@ -490,7 +544,7 @@ def with_endofweek_date(
     Returns
     -------
     pyspark.sql.DataFrame
-        A new data frame with the end of week date column.
+        A new data frame with the end-of-week date column.
 
     Examples
     --------
@@ -545,46 +599,13 @@ def with_endofweek_date(
     )
 
 
-def with_index(dataframe):
-    """Add an index column.
-
-    Parameters
-    ----------
-    dataframe : pyspark.sql.DataFrame
-        Input data frame to index.
-
-    Returns
-    -------
-    pyspark.sql.DataFrame
-        A new data frame with the first column being a consecutive row index.
-
-    Examples
-    --------
-    >>> import sparkit
-    >>> from pyspark.sql import Row, SparkSession
-    >>> spark = SparkSession.builder.getOrCreate()
-    >>> df = spark.createDataFrame([Row(x="a"), Row(x="b"), Row(x="c"), Row(x="d")])
-    >>> sparkit.with_index(df).show()
-    +---+---+
-    |idx|  x|
-    +---+---+
-    |  1|  a|
-    |  2|  b|
-    |  3|  c|
-    |  4|  d|
-    +---+---+
-    <BLANKLINE>
-    """
-    columns = dataframe.columns
-    win = Window.partitionBy(F.lit(1)).orderBy(F.monotonically_increasing_id())
-    return dataframe.withColumn("idx", F.row_number().over(win)).select("idx", *columns)
-
-
 @toolz.curry
 def with_startofweek_date(
     date_column_name,
     new_column_name,
     dataframe,
+    /,
+    *,
     last_weekday_name="Sun",
 ):
     """Add column with the start of the week date.
@@ -607,7 +628,7 @@ def with_startofweek_date(
     Returns
     -------
     pyspark.sql.DataFrame
-        A new data frame with the start of week date column.
+        A new data frame with the start-of-week date column.
 
     Examples
     --------
@@ -663,7 +684,7 @@ def with_startofweek_date(
 
 
 @toolz.curry
-def with_weekday_name(date_column_name, new_column_name, dataframe):
+def with_weekday_name(date_column_name, new_column_name, dataframe, /):
     """Add column with the name of the weekday.
 
     Parameters
