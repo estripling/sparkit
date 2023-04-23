@@ -67,15 +67,15 @@ def add_prefix(prefix, dataframe, /, *, subset=None):
 
 
 @toolz.curry
-def add_suffix(dataframe, suffix, subset=None):
+def add_suffix(suffix, dataframe, /, *, subset=None):
     """Add suffix to column names.
 
     Parameters
     ----------
-    dataframe : pyspark.sql.DataFrame
-        The data frame for which the column names are to be changed.
     suffix : str
-        The string to add after a column name.
+        Specify the suffix string.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
     subset : Iterable of str, default=None
         Specify a column selection. If None, all columns are selected.
 
@@ -94,7 +94,7 @@ def add_suffix(dataframe, suffix, subset=None):
     >>> from pyspark.sql import Row, SparkSession
     >>> spark = SparkSession.builder.getOrCreate()
     >>> df = spark.createDataFrame([Row(x=1, y=2)])
-    >>> sparkit.add_suffix(df, "_suffix").show()
+    >>> sparkit.add_suffix("_suffix", df).show()
     +--------+--------+
     |x_suffix|y_suffix|
     +--------+--------+

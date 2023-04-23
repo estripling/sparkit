@@ -31,17 +31,17 @@ def test_add_suffix(spark):
     df = spark.createDataFrame([Row(x=1, y=2)])
 
     # all columns
-    actual = sparkit.add_suffix(df, "_suffix")
+    actual = sparkit.add_suffix("_suffix", df)
     expected = spark.createDataFrame([Row(x_suffix=1, y_suffix=2)])
     assert_dataframe_equal(actual, expected)
 
     # with column selection
-    actual = sparkit.add_suffix(df, "_suffix", ["x"])
+    actual = sparkit.add_suffix("_suffix", df, subset=["x"])
     expected = spark.createDataFrame([Row(x_suffix=1, y=2)])
     assert_dataframe_equal(actual, expected)
 
     # used as transformation function
-    actual = df.transform(sparkit.add_suffix(suffix="_suffix", subset=["x"]))
+    actual = df.transform(sparkit.add_suffix("_suffix", subset=["x"]))
     expected = spark.createDataFrame([Row(x_suffix=1, y=2)])
     assert_dataframe_equal(actual, expected)
 
