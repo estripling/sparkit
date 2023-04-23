@@ -684,7 +684,7 @@ def with_startofweek_date(
 
 
 @toolz.curry
-def with_weekday_name(date_column_name, new_column_name, dataframe):
+def with_weekday_name(date_column_name, new_column_name, dataframe, /):
     """Add column with the name of the weekday.
 
     Parameters
