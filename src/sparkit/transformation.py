@@ -108,20 +108,20 @@ def add_suffix(suffix, dataframe, /, *, subset=None):
     return dataframe
 
 
-def count_nulls(dataframe, subset=None):
+def count_nulls(dataframe, /, *, subset=None):
     """Count null values in data frame.
 
     Parameters
     ----------
     dataframe : pyspark.sql.DataFrame
-        Input data frame to count null values.
+        Input data frame.
     subset : Iterable of str, default=None
         Specify a column selection. If None, all columns are selected.
 
     Returns
     -------
     pyspark.sql.DataFrame
-        A new data frame with null values.
+        A new data frame with null value counts per column.
 
     Examples
     --------
