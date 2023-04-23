@@ -12,17 +12,17 @@ def test_add_prefix(spark):
     df = spark.createDataFrame([Row(x=1, y=2)])
 
     # all columns
-    actual = sparkit.add_prefix(df, "prefix_")
+    actual = sparkit.add_prefix("prefix_", df)
     expected = spark.createDataFrame([Row(prefix_x=1, prefix_y=2)])
     assert_dataframe_equal(actual, expected)
 
     # with column selection
-    actual = sparkit.add_prefix(df, "prefix_", ["x"])
+    actual = sparkit.add_prefix("prefix_", df, subset=["x"])
     expected = spark.createDataFrame([Row(prefix_x=1, y=2)])
     assert_dataframe_equal(actual, expected)
 
     # used as transformation function
-    actual = df.transform(sparkit.add_prefix(prefix="prefix_", subset=["x"]))
+    actual = df.transform(sparkit.add_prefix("prefix_", subset=["x"]))
     expected = spark.createDataFrame([Row(prefix_x=1, y=2)])
     assert_dataframe_equal(actual, expected)
 

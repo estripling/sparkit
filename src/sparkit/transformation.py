@@ -25,15 +25,15 @@ __all__ = (
 
 
 @toolz.curry
-def add_prefix(dataframe, prefix, subset=None):
+def add_prefix(prefix, dataframe, /, *, subset=None):
     """Add prefix to column names.
 
     Parameters
     ----------
-    dataframe : pyspark.sql.DataFrame
-        The data frame for which the column names are to be changed.
     prefix : str
-        The string to add before a column name.
+        Specify the prefix string.
+    dataframe : pyspark.sql.DataFrame
+        Input data frame.
     subset : Iterable of str, default=None
         Specify a column selection. If None, all columns are selected.
 
@@ -52,7 +52,7 @@ def add_prefix(dataframe, prefix, subset=None):
     >>> from pyspark.sql import Row, SparkSession
     >>> spark = SparkSession.builder.getOrCreate()
     >>> df = spark.createDataFrame([Row(x=1, y=2)])
-    >>> sparkit.add_prefix(df, "prefix_").show()
+    >>> sparkit.add_prefix("prefix_", df).show()
     +--------+--------+
     |prefix_x|prefix_y|
     +--------+--------+
