@@ -50,7 +50,9 @@ suppress_warnings = ["myst.header", "autoapi"]
 
 def skip_util_classes(app, what, name, obj, skip, options):
     # https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html#event-autoapi-skip-member
-    if what == "module":
+    if what == "module" and "pandastools" in name:
+        skip = False
+    elif what == "module":
         skip = True
     return skip
 
