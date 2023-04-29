@@ -263,14 +263,14 @@ dev = ["Sphinx (==4.3.2)", "black (==22.3.0)", "build (==0.8.0)", "flake8 (==4.0
 
 [[package]]
 name = "bumbag"
-version = "4.1.0"
+version = "5.0.0"
 description = "A package for Python utility functions."
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "bumbag-4.1.0-py3-none-any.whl", hash = "sha256:74f147eb4942ff7558a8a364952b4a53aeeafca06efb6b4c4945fd76efe2b2b1"},
-    {file = "bumbag-4.1.0.tar.gz", hash = "sha256:447c14dff61c1c4f4e864117b70b2ad4bb83663869061788da36255dcc229686"},
+    {file = "bumbag-5.0.0-py3-none-any.whl", hash = "sha256:4428cc949a258fc304f2af8ee075d74428b57dcf9aaca9ba50f58ee8961ef266"},
+    {file = "bumbag-5.0.0.tar.gz", hash = "sha256:866c46e4aa3d5dc985294b76c2f49a43ece1eba857af8770d57a63df44dcfa8f"},
 ]
 
 [package.dependencies]
@@ -3416,4 +3416,4 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "cda25f7d421e5e3b70c343379bb406455b883275d8be0ae4603f33f1718d1b69"
+content-hash = "0e7916d6965ea3eef0207a868e2118605f872d099f7417a4623c4c0104967ca2"

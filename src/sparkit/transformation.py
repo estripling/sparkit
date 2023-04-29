@@ -413,11 +413,8 @@ def peek(dataframe, /, *, n=6, cache=False, schema=False, index=False):
     if schema:
         df.printSchema()
 
-    def fmt(x):
-        return f"{x:,}".replace(",", "_")
-
-    num_rows = fmt(df.count())
-    num_cols = fmt(len(df.columns))
+    num_rows = bumbag.numberformat(df.count())
+    num_cols = bumbag.numberformat(len(df.columns))
     print(f"shape = ({num_rows}, {num_cols})")
 
     if n > 0:
