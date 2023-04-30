@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.0 (2023-04-30)
+### Feature
+* Add pandastools ([#15](https://github.com/estripling/sparkit/issues/15)) ([`0c0aff6`](https://github.com/estripling/sparkit/commit/0c0aff662ef9ce3c379d0ee249f9b7ed64bf385e))
+
+### Fix
+* Readthedocs failed built ([`917422c`](https://github.com/estripling/sparkit/commit/917422cc99bb4fea3da537c5f70c71a5ea219eb7))
+
 ## v1.0.0 (2023-04-23)
 ### Feature
 * Add time related functions ([#13](https://github.com/estripling/sparkit/issues/13)) ([`5e710e2`](https://github.com/estripling/sparkit/commit/5e710e2ca082370fb262db736034f6aa8756992c))
