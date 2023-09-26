@@ -2,6 +2,9 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.1 (2023-09-26)
+
+
 ## v1.1.0 (2023-04-30)
 ### Feature
 * Add pandastools ([#15](https://github.com/estripling/sparkit/issues/15)) ([`0c0aff6`](https://github.com/estripling/sparkit/commit/0c0aff662ef9ce3c379d0ee249f9b7ed64bf385e))
