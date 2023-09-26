@@ -345,7 +345,7 @@ def join(*dataframes, on, how="inner"):
 
 
 @toolz.curry
-def peek(dataframe, /, *, n=6, cache=False, schema=False, index=False):
+def peek(dataframe, /, *, n=6, shape=True, cache=False, schema=False, index=False):
     """Have a quick look at the data frame and return it.
 
     This function is handy when chaining data frame transformations.
@@ -356,6 +356,8 @@ def peek(dataframe, /, *, n=6, cache=False, schema=False, index=False):
         Input data frame.
     n : int, default=6
         Specify the number of rows to show. If `n <= 0`, no rows are shown.
+    shape : bool, default=True
+        Specify if row and column counts should be printed.
     cache : bool, default=False
         Specify if data frame should be cached.
     schema : bool, default=False
@@ -413,9 +415,10 @@ def peek(dataframe, /, *, n=6, cache=False, schema=False, index=False):
     if schema:
         df.printSchema()
 
-    num_rows = bumbag.numberformat(df.count())
-    num_cols = bumbag.numberformat(len(df.columns))
-    print(f"shape = ({num_rows}, {num_cols})")
+    if shape:
+        num_rows = bumbag.numberformat(df.count())
+        num_cols = bumbag.numberformat(len(df.columns))
+        print(f"shape = ({num_rows}, {num_cols})")
 
     if n > 0:
         pandas_df = df.limit(n).toPandas()
